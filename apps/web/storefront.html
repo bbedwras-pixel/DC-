@@ -1,0 +1,4770 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>星光商城 | 線上購物網站</title>
+  <style>
+    .market-toolbar {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+      gap: 14px;
+      align-items: end;
+      margin: 0 0 16px;
+    }
+
+    .market-search input {
+      min-height: 48px;
+      font-size: 0.95rem;
+    }
+
+    .category-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      min-height: 48px;
+    }
+
+    .category-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      color: #4b5563;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, color 160ms ease;
+    }
+
+    .category-pill:hover,
+    .category-pill.is-active {
+      transform: translateY(-1px);
+      border-color: #fdba74;
+      color: #ea580c;
+      box-shadow: 0 8px 18px rgba(238, 77, 45, 0.12);
+    }
+
+    .product-card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .product-tag-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .product-category-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #c2410c;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .product-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid #eef2f7;
+    }
+
+    .product-stock-note {
+      color: #6b7280 !important;
+      font-size: 0.85rem;
+      margin: 0 !important;
+    }
+
+    .checkout-feature-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .feature-pill {
+      display: grid;
+      place-items: center;
+      min-height: 42px;
+      border-radius: 10px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #c2410c;
+      font-size: 0.84rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px 10px;
+    }
+
+    .promo-banner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+      gap: 18px;
+      align-items: center;
+      padding: 22px !important;
+    }
+
+    .promo-copy h2 {
+      margin: 0 0 10px;
+      font-size: 1.86rem;
+      color: #111827;
+    }
+
+    .promo-copy p {
+      margin: 0;
+      color: #6b7280;
+      line-height: 1.7;
+    }
+
+    .promo-dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .promo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .promo-dot.is-active {
+      background: #ee4d2d;
+      transform: scale(1.1);
+    }
+
+    .promo-pill-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .promo-pill-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fff7ed, #fff);
+      border: 1px solid #fed7aa;
+      box-shadow: 0 8px 20px rgba(238, 77, 45, 0.08);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .promo-pill-card.is-active {
+      transform: translateY(-2px);
+      border-color: #fb923c;
+      box-shadow: 0 14px 26px rgba(238, 77, 45, 0.14);
+    }
+
+    .promo-pill-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #9a3412;
+    }
+
+    .promo-pill-card small {
+      color: #7c6f64;
+      line-height: 1.5;
+    }
+
+    .shelf-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .shelf-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #eceff3;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    .shelf-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .compact-product-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .compact-product-card {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 12px;
+      background: #fafbfc;
+      border: 1px solid #edf1f5;
+    }
+
+    .compact-product-cover {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      display: grid;
+      place-items: center;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .compact-product-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .compact-product-meta {
+      display: grid;
+      gap: 4px;
+    }
+
+    .compact-product-meta strong {
+      margin: 0;
+      font-size: 0.94rem;
+      color: #111827;
+    }
+
+    .compact-product-meta small {
+      color: #6b7280;
+    }
+
+    .compact-product-action {
+      min-width: 88px !important;
+      min-height: 38px !important;
+      padding: 0 12px !important;
+      border-radius: 10px !important;
+    }
+
+    .qty-stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px;
+      border-radius: 999px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+    }
+
+    .qty-stepper-value {
+      min-width: 26px;
+      text-align: center;
+      font-weight: 800;
+      color: #c2410c;
+    }
+
+    @media (max-width: 980px) {
+      .market-toolbar {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .checkout-feature-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .shelf-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .promo-banner,
+      .promo-pill-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .product-card-top,
+      .product-card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+  <style>
+    :root {
+      color-scheme: dark;
+      --text: #f5fbff;
+      --muted: rgba(245, 251, 255, 0.74);
+      --line: rgba(255, 255, 255, 0.09);
+      --card: rgba(10, 18, 32, 0.52);
+      --card-strong: rgba(8, 16, 30, 0.72);
+      --brand-a: #8ce8ff;
+      --brand-b: #f8a4e0;
+      --brand-c: #5ea8ff;
+      --success: #6ee7b7;
+      --warn: #fcd34d;
+      --danger: #fca5a5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Outfit", "Noto Sans TC", sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(180deg, rgba(4, 10, 20, 0.2), rgba(4, 10, 20, 0.68)),
+        url("/storefront-assets/sky-dashboard-bg.jpg") center center / cover no-repeat fixed;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 28px;
+      backdrop-filter: blur(2px);
+    }
+
+    .shell {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 28px 80px rgba(2, 9, 20, 0.28);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.76rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(245, 251, 255, 0.64);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      position: sticky;
+      top: 16px;
+      z-index: 10;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--brand-a), var(--brand-c) 55%, var(--brand-b));
+      color: #041121;
+    }
+
+    .nav-links,
+    .nav-actions,
+    .hero-actions,
+    .hero-chips,
+    .inline-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .button,
+    .button-alt,
+    .button-soft {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 142px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+
+    .button {
+      background: linear-gradient(135deg, var(--brand-a), var(--brand-c) 50%, var(--brand-b));
+      color: #041121;
+      font-weight: 800;
+    }
+
+    .button-alt {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .button-soft {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+    }
+
+    .button:hover,
+    .button-alt:hover,
+    .button-soft:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:disabled,
+    .button-alt:disabled,
+    .button-soft:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+      gap: 22px;
+      padding: 30px;
+    }
+
+    .hero-copy h1 {
+      margin: 0 0 14px;
+      font-size: clamp(3rem, 5vw, 5.6rem);
+      line-height: 0.94;
+    }
+
+    .hero-copy p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 760px;
+    }
+
+    .chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(173, 232, 255, 0.14);
+      color: rgba(245, 251, 255, 0.84);
+    }
+
+    .hero-side,
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .spotlight,
+    .quick-box,
+    .panel,
+    .product-card,
+    .cart-line,
+    .order-card,
+    .payment-card,
+    .faq-card,
+    .review-card {
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+    }
+
+    .spotlight,
+    .quick-box,
+    .panel,
+    .product-card,
+    .payment-card,
+    .faq-card,
+    .review-card,
+    .order-card {
+      padding: 20px;
+    }
+
+    .spotlight strong,
+    .quick-box strong,
+    .product-card strong,
+    .payment-card strong,
+    .faq-card strong,
+    .review-card strong,
+    .order-card strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 1.08rem;
+    }
+
+    .spotlight p,
+    .quick-box p,
+    .product-card p,
+    .payment-card p,
+    .faq-card p,
+    .review-card p,
+    .order-card p,
+    .panel p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .grid-two,
+    .grid-three,
+    .products-grid,
+    .payments-grid,
+    .orders-grid,
+    .reviews-grid,
+    .faq-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-three,
+    .products-grid,
+    .payments-grid,
+    .reviews-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .shop-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .section-head {
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin: 0 0 10px;
+      font-size: 1.86rem;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.68;
+    }
+
+    .product-card {
+      display: grid;
+      gap: 12px;
+    }
+
+    .product-banner {
+      min-height: 160px;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(7, 16, 28, 0.16), rgba(7, 16, 28, 0.56)),
+        url("/storefront-assets/sky-dashboard-bg.jpg") center center / cover no-repeat;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 16px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .product-banner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(245, 251, 255, 0.84);
+      font-size: 0.82rem;
+    }
+
+    .price {
+      font-size: 1.34rem;
+      font-weight: 800;
+    }
+
+    .cart-shell {
+      display: grid;
+      gap: 18px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .cart-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .cart-line {
+      padding: 16px;
+    }
+
+    .cart-line-head,
+    .cart-line-actions,
+    .status-row,
+    .order-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .mini-button {
+      min-width: auto;
+      padding: 8px 12px;
+    }
+
+    .cart-total {
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.18rem;
+      font-weight: 800;
+    }
+
+    label {
+      display: grid;
+      gap: 8px;
+    }
+
+    label span {
+      color: rgba(245, 251, 255, 0.74);
+      font-size: 0.92rem;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      padding: 13px 14px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 118px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(140, 232, 255, 0.54);
+      box-shadow: 0 0 0 3px rgba(140, 232, 255, 0.12);
+    }
+
+    .status {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
+      color: rgba(245, 251, 255, 0.84);
+      line-height: 1.6;
+    }
+
+    .status.success {
+      border-color: rgba(110, 231, 183, 0.28);
+      color: #d6ffef;
+    }
+
+    .status.warn {
+      border-color: rgba(252, 211, 77, 0.28);
+      color: #fff3c4;
+    }
+
+    .status.error {
+      border-color: rgba(252, 165, 165, 0.32);
+      color: #ffe0e0;
+    }
+
+    .auth-layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .panel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .order-card small,
+    .empty-note,
+    .footnote {
+      color: rgba(245, 251, 255, 0.64);
+      line-height: 1.6;
+    }
+
+    .review-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .review-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--brand-a), var(--brand-b));
+      color: #041121;
+      font-weight: 800;
+    }
+
+    .member-center {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 18px;
+    }
+
+    .member-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .member-metric {
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .member-metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .member-metric strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.16rem;
+    }
+
+    .member-profile {
+      display: grid;
+      gap: 12px;
+    }
+
+    .status-badges,
+    .verification-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .verification-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .verification-stack {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1180px) {
+      .hero,
+      .shop-layout,
+      .auth-layout,
+      .grid-three,
+      .grid-two,
+      .products-grid,
+      .payments-grid,
+      .orders-grid,
+      .reviews-grid,
+      .faq-grid,
+      .member-center,
+      .member-metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-shell {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 18px;
+      }
+
+      .nav,
+      .hero,
+      .panel,
+      .product-card {
+        padding: 18px;
+      }
+    }
+  </style>
+  <style>
+    :root {
+      color-scheme: light;
+      --text: #172033;
+      --muted: #6f7b91;
+      --line: #e7ebf2;
+      --card: #ffffff;
+      --card-strong: #ffffff;
+      --brand-a: #ff7a33;
+      --brand-b: #ff9a62;
+      --brand-c: #ee4d2d;
+      --success: #16a34a;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --surface: #f6f7fb;
+      --surface-2: #fff7f2;
+    }
+
+    html, body {
+      background: var(--surface) !important;
+    }
+
+    body,
+    body p,
+    body span,
+    body small,
+    body strong,
+    body h1,
+    body h2,
+    body h3,
+    body h4,
+    body a,
+    body label {
+      color: var(--text) !important;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(255, 122, 51, 0.08), transparent 24%),
+        linear-gradient(180deg, #fbfbfd 0%, #f4f6fa 100%) !important;
+    }
+
+    .page {
+      padding: 18px !important;
+      backdrop-filter: none !important;
+    }
+
+    .shell {
+      max-width: 1440px !important;
+      gap: 16px !important;
+    }
+
+    .card,
+    .spotlight,
+    .quick-box,
+    .panel,
+    .product-card,
+    .cart-line,
+    .order-card,
+    .payment-card,
+    .faq-card,
+    .review-card {
+      background: #fff !important;
+      border: 1px solid var(--line) !important;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05) !important;
+      backdrop-filter: none !important;
+      border-radius: 22px !important;
+    }
+
+    .nav {
+      padding: 14px 18px !important;
+      top: 10px !important;
+      background: rgba(255,255,255,0.92) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+
+    .nav-mark {
+      background: linear-gradient(135deg, var(--brand-a), var(--brand-c)) !important;
+      color: #fff !important;
+    }
+
+    .button,
+    .button-alt,
+    .button-soft {
+      min-width: 132px !important;
+      border-radius: 12px !important;
+      padding: 12px 18px !important;
+      font-weight: 800 !important;
+    }
+
+    .button {
+      background: linear-gradient(180deg, var(--brand-a), var(--brand-c)) !important;
+      color: #fff !important;
+    }
+
+    .button-alt {
+      background: #fff !important;
+      color: #2f3a4d !important;
+      border: 1px solid #d7dde8 !important;
+    }
+
+    .button-soft {
+      background: #fff7f2 !important;
+      color: #d9480f !important;
+      border: 1px solid #ffd6c2 !important;
+    }
+
+    .hero {
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr) !important;
+      gap: 18px !important;
+      padding: 26px !important;
+      background:
+        linear-gradient(135deg, rgba(255, 122, 51, 0.08), rgba(255,255,255,1) 36%),
+        #fff !important;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2.6rem, 4.5vw, 4.6rem) !important;
+      line-height: 1.04 !important;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-copy p,
+    .section-head p,
+    .spotlight p,
+    .quick-box p,
+    .product-card p,
+    .payment-card p,
+    .faq-card p,
+    .review-card p,
+    .order-card p,
+    .panel p {
+      color: var(--muted) !important;
+    }
+
+    .chip {
+      background: #fff4ed !important;
+      border: 1px solid #ffd2bf !important;
+      color: #d9480f !important;
+      font-weight: 700;
+    }
+
+    .spotlight,
+    .quick-box,
+    .product-card,
+    .payment-card,
+    .faq-card,
+    .review-card,
+    .order-card,
+    .panel {
+      padding: 18px !important;
+    }
+
+    .grid-three,
+    .products-grid,
+    .payments-grid,
+    .reviews-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 16px !important;
+    }
+
+    .shop-layout {
+      grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr) !important;
+      gap: 16px !important;
+    }
+
+    .section-head h2 {
+      font-size: 1.72rem !important;
+    }
+
+    .product-banner {
+      min-height: 180px !important;
+      background:
+        linear-gradient(180deg, rgba(255, 122, 51, 0.08), rgba(255,255,255,0.18)),
+        linear-gradient(135deg, #fff1e9, #fff8f4) !important;
+      border: 1px solid #ffe0d2 !important;
+    }
+
+    .product-meta,
+    .cart-summary,
+    .member-stat,
+    .payment-meta,
+    .faq-meta,
+    .order-meta {
+      background: #fafbfc !important;
+      border: 1px solid #edf1f5 !important;
+      border-radius: 16px !important;
+    }
+
+    .price {
+      color: #ee4d2d !important;
+    }
+
+    .eyebrow {
+      color: #9aa4b5 !important;
+    }
+
+    input,
+    select,
+    textarea {
+      background: #fff !important;
+      color: var(--text) !important;
+      border: 1px solid #d7dde8 !important;
+      border-radius: 12px !important;
+      padding: 12px 14px !important;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #ff8a50 !important;
+      box-shadow: 0 0 0 3px rgba(255, 138, 80, 0.15) !important;
+    }
+
+    .cart-line,
+    .order-card {
+      padding: 16px !important;
+    }
+
+    .status-chip,
+    .badge {
+      background: #fff4ed !important;
+      color: #d9480f !important;
+      border: 1px solid #ffd2bf !important;
+      border-radius: 999px !important;
+    }
+
+    .member-panel,
+    .order-panel,
+    .cart-panel {
+      background: #fff !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 22px !important;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05) !important;
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .shop-layout,
+      .grid-two,
+      .grid-three,
+      .products-grid,
+      .payments-grid,
+      .orders-grid,
+      .reviews-grid,
+      .faq-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .products-grid {
+      gap: 16px !important;
+    }
+
+    .product-card {
+      overflow: hidden;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .product-banner {
+      min-height: 210px !important;
+      border-radius: 18px !important;
+    }
+
+    .cart-shell {
+      display: grid;
+      gap: 16px;
+      position: sticky;
+      top: 82px;
+      align-self: start;
+    }
+
+    .chat-thread {
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+      border-radius: 18px;
+      padding: 14px;
+      background: #fafbfc;
+      border: 1px solid #edf1f5;
+    }
+
+    .chat-thread-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-bubble-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .chat-bubble {
+      max-width: 88%;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .chat-bubble.from-customer {
+      margin-left: auto;
+      background: #fff3ec;
+      border-color: #ffd2bf;
+    }
+
+    .chat-bubble.from-staff {
+      margin-right: auto;
+      background: #ffffff;
+    }
+
+    .chat-bubble.from-system {
+      max-width: 100%;
+      background: #f8fafc;
+    }
+
+    .chat-bubble-meta {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .chat-bubble p,
+    .chat-bubble small,
+    .chat-bubble strong {
+      margin: 0;
+    }
+
+    .chat-compose {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 140px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .chat-compose textarea {
+      min-height: 88px;
+    }
+
+    /* Futuristic storefront theme */
+    :root {
+      color-scheme: dark;
+      --text: #eef6ff;
+      --muted: #92a6c9;
+      --line: rgba(127, 157, 255, 0.22);
+      --card: rgba(10, 18, 38, 0.76);
+      --card-strong: rgba(8, 14, 30, 0.92);
+      --brand-a: #53f3ff;
+      --brand-b: #8b7bff;
+      --brand-c: #ff5fd2;
+      --surface: #050816;
+      --surface-2: rgba(8, 18, 36, 0.84);
+    }
+
+    html,
+    body {
+      background: #040814 !important;
+    }
+
+    body,
+    body p,
+    body span,
+    body small,
+    body strong,
+    body h1,
+    body h2,
+    body h3,
+    body h4,
+    body a,
+    body label {
+      color: var(--text) !important;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 15% 12%, rgba(83, 243, 255, 0.16), transparent 22%),
+        radial-gradient(circle at 84% 18%, rgba(255, 95, 210, 0.16), transparent 18%),
+        radial-gradient(circle at 55% 88%, rgba(139, 123, 255, 0.18), transparent 24%),
+        linear-gradient(180deg, #040814 0%, #060b18 42%, #091226 100%) !important;
+    }
+
+    .page {
+      padding: 22px !important;
+    }
+
+    .card,
+    .spotlight,
+    .quick-box,
+    .panel,
+    .product-card,
+    .cart-line,
+    .order-card,
+    .payment-card,
+    .faq-card,
+    .review-card,
+    .member-panel,
+    .order-panel,
+    .cart-panel {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+        rgba(7, 14, 28, 0.86) !important;
+      border: 1px solid rgba(118, 145, 255, 0.24) !important;
+      box-shadow:
+        0 20px 40px rgba(3, 8, 20, 0.34),
+        inset 0 1px 0 rgba(255,255,255,0.05) !important;
+      backdrop-filter: blur(18px) saturate(140%) !important;
+    }
+
+    .nav {
+      background: rgba(6, 12, 24, 0.82) !important;
+      border-color: rgba(115, 145, 255, 0.24) !important;
+    }
+
+    .nav-mark {
+      background: linear-gradient(135deg, var(--brand-a), var(--brand-b) 56%, var(--brand-c)) !important;
+      color: #07111f !important;
+      box-shadow: 0 0 24px rgba(83, 243, 255, 0.32);
+    }
+
+    .button,
+    .button-alt,
+    .button-soft {
+      border-radius: 14px !important;
+      letter-spacing: 0.01em;
+    }
+
+    .button {
+      background: linear-gradient(135deg, var(--brand-a), #3f89ff 48%, var(--brand-c)) !important;
+      color: #07111f !important;
+      box-shadow: 0 14px 28px rgba(83, 243, 255, 0.18);
+    }
+
+    .button-alt {
+      background: rgba(255,255,255,0.04) !important;
+      color: var(--text) !important;
+      border: 1px solid rgba(127, 157, 255, 0.24) !important;
+    }
+
+    .button-soft {
+      background: rgba(83, 243, 255, 0.08) !important;
+      color: #9bf7ff !important;
+      border: 1px solid rgba(83, 243, 255, 0.2) !important;
+    }
+
+    .hero {
+      background:
+        linear-gradient(135deg, rgba(83,243,255,0.12), rgba(7,14,28,0.92) 35%, rgba(255,95,210,0.1) 100%),
+        rgba(7, 14, 28, 0.92) !important;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.32), transparent 82%);
+      pointer-events: none;
+    }
+
+    .hero-copy,
+    .hero-side,
+    .section-head,
+    .products-grid,
+    .chat-thread {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-copy h1 {
+      text-shadow: 0 0 20px rgba(83, 243, 255, 0.16);
+    }
+
+    .hero-copy p,
+    .section-head p,
+    .spotlight p,
+    .quick-box p,
+    .product-card p,
+    .payment-card p,
+    .faq-card p,
+    .review-card p,
+    .order-card p,
+    .panel p,
+    .eyebrow,
+    .footnote {
+      color: var(--muted) !important;
+    }
+
+    .chip,
+    .status-chip,
+    .badge {
+      background: rgba(83, 243, 255, 0.08) !important;
+      color: #a7f8ff !important;
+      border: 1px solid rgba(83, 243, 255, 0.22) !important;
+    }
+
+    .hero-chips .chip:nth-child(2),
+    .badge {
+      border-color: rgba(255, 95, 210, 0.24) !important;
+      color: #ffc2ef !important;
+      background: rgba(255, 95, 210, 0.08) !important;
+    }
+
+    .product-card {
+      overflow: hidden;
+    }
+
+    .product-banner {
+      background:
+        radial-gradient(circle at top left, rgba(83,243,255,0.18), transparent 26%),
+        linear-gradient(135deg, rgba(12,24,46,0.96), rgba(18,18,52,0.88) 46%, rgba(56,24,78,0.84)) !important;
+      border: 1px solid rgba(83,243,255,0.18) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 24px 40px rgba(3, 8, 20, 0.36),
+        0 0 0 1px rgba(83, 243, 255, 0.14) !important;
+    }
+
+    .product-meta,
+    .cart-summary,
+    .member-stat,
+    .payment-meta,
+    .faq-meta,
+    .order-meta {
+      background: rgba(255,255,255,0.03) !important;
+      border: 1px solid rgba(120, 144, 255, 0.18) !important;
+    }
+
+    .price {
+      color: #8ff9ff !important;
+      text-shadow: 0 0 16px rgba(83, 243, 255, 0.18);
+    }
+
+    input,
+    select,
+    textarea {
+      background: rgba(255,255,255,0.03) !important;
+      color: var(--text) !important;
+      border: 1px solid rgba(126, 151, 255, 0.22) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(83, 243, 255, 0.48) !important;
+      box-shadow:
+        0 0 0 3px rgba(83, 243, 255, 0.12),
+        0 0 24px rgba(83, 243, 255, 0.14) !important;
+    }
+
+    .chat-thread {
+      background: linear-gradient(180deg, rgba(6, 14, 28, 0.72), rgba(6, 14, 28, 0.9)) !important;
+      border: 1px solid rgba(118, 145, 255, 0.2) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .chat-thread-head {
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(120, 144, 255, 0.14);
+    }
+
+    .chat-bubble {
+      background: rgba(255,255,255,0.04) !important;
+      border: 1px solid rgba(125, 149, 255, 0.18) !important;
+      box-shadow: none !important;
+    }
+
+    .chat-bubble.from-customer {
+      background: linear-gradient(135deg, rgba(83,243,255,0.14), rgba(63,137,255,0.12)) !important;
+      border-color: rgba(83, 243, 255, 0.22) !important;
+    }
+
+    .chat-bubble.from-staff {
+      background: linear-gradient(135deg, rgba(255,95,210,0.12), rgba(139,123,255,0.1)) !important;
+      border-color: rgba(255, 95, 210, 0.18) !important;
+    }
+
+    .chat-bubble.from-system {
+      background: rgba(255,255,255,0.02) !important;
+    }
+
+    .chat-compose {
+      padding-top: 4px;
+    }
+
+    .cart-shell {
+      top: 94px;
+    }
+
+    .payments-grid .payment-card,
+    .reviews-grid .review-card,
+    .faq-grid .faq-card {
+      min-height: 100%;
+    }
+
+    .hero,
+    .products,
+    .checkout-grid,
+    .member-grid,
+    .faq-grid,
+    .reviews-grid {
+      gap: 18px !important;
+    }
+
+    .card,
+    .product-card,
+    .payment-card,
+    .review-card,
+    .faq-card,
+    .order-card {
+      box-shadow:
+        0 24px 64px rgba(2, 6, 23, 0.34),
+        inset 0 1px 0 rgba(255,255,255,0.05) !important;
+    }
+
+    .product-card,
+    .order-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card::before,
+    .order-card::before,
+    .button::before,
+    .button-alt::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 18%, rgba(255,255,255,0.24) 50%, transparent 82%);
+      transform: translateX(-140%);
+      pointer-events: none;
+    }
+
+    .product-card:hover,
+    .order-card:hover {
+      transform: translateY(-4px) !important;
+      box-shadow:
+        0 30px 72px rgba(2, 6, 23, 0.42),
+        0 0 24px rgba(83, 243, 255, 0.12) !important;
+    }
+
+    .product-card:hover::before,
+    .order-card:hover::before,
+    .button:hover::before,
+    .button-alt:hover::before {
+      transform: translateX(140%);
+      transition: transform 620ms ease;
+    }
+
+    .button,
+    .button-alt {
+      position: relative;
+      overflow: hidden;
+      min-height: 52px;
+      border-radius: 16px !important;
+    }
+
+    .button {
+      background-size: 180% 180% !important;
+      box-shadow:
+        0 18px 38px rgba(59, 130, 246, 0.24),
+        0 0 20px rgba(168, 85, 247, 0.16) !important;
+    }
+
+    .button:hover,
+    .button-alt:hover {
+      transform: translateY(-2px) scale(1.01);
+      background-position: 100% 50% !important;
+    }
+
+    .orders-grid {
+      gap: 18px !important;
+    }
+
+    .order-card {
+      padding: 20px !important;
+    }
+
+    .order-meta {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px !important;
+    }
+
+    .order-meta small {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(7, 16, 34, 0.58);
+      border: 1px solid rgba(118, 145, 255, 0.14);
+    }
+
+    .chat-thread {
+      padding: 14px !important;
+      border-radius: 22px !important;
+    }
+
+    .chat-bubble-list {
+      max-height: 320px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .chat-bubble {
+      max-width: min(88%, 720px);
+      padding: 12px 14px !important;
+    }
+
+    .chat-compose {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 172px;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .chat-compose textarea {
+      min-height: 104px !important;
+    }
+
+    .chat-compose .button-alt {
+      width: 100%;
+    }
+
+    @media (max-width: 820px) {
+      .order-meta,
+      .chat-compose {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Shopee-like storefront checkout reset */
+    :root {
+      color-scheme: light;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --card: #ffffff;
+      --card-strong: #ffffff;
+      --brand-a: #ee4d2d;
+      --brand-b: #ff7a45;
+      --brand-c: #f97316;
+      --success: #16a34a;
+      --warn: #d97706;
+      --danger: #dc2626;
+    }
+
+    body {
+      background: #f5f5f5 !important;
+      color: var(--text) !important;
+    }
+
+    .page {
+      padding: 18px 20px 40px !important;
+      backdrop-filter: none !important;
+    }
+
+    .shell {
+      max-width: 1280px !important;
+      gap: 16px !important;
+    }
+
+    .card,
+    .panel,
+    .product-card,
+    .payment-card,
+    .faq-card,
+    .review-card,
+    .order-card,
+    .spotlight,
+    .quick-box {
+      background: #ffffff !important;
+      border: 1px solid #eceff3 !important;
+      border-radius: 10px !important;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06) !important;
+      color: var(--text) !important;
+      backdrop-filter: none !important;
+    }
+
+    .eyebrow,
+    .spotlight p,
+    .quick-box p,
+    .product-card p,
+    .payment-card p,
+    .faq-card p,
+    .review-card p,
+    .order-card p,
+    .panel p,
+    .hero-copy p,
+    .chip,
+    .status,
+    .footnote {
+      color: var(--muted) !important;
+    }
+
+    .nav {
+      padding: 14px 18px !important;
+      border-radius: 10px !important;
+      background: #ffffff !important;
+      border: 1px solid #eceff3 !important;
+      top: 10px !important;
+    }
+
+    .nav-mark,
+    .button {
+      background: linear-gradient(135deg, #ee4d2d, #ff7a45) !important;
+      color: #ffffff !important;
+    }
+
+    .button,
+    .button-alt,
+    .button-soft {
+      min-width: 126px !important;
+      min-height: 42px !important;
+      border-radius: 6px !important;
+      padding: 0 16px !important;
+      font-weight: 700 !important;
+      box-shadow: none !important;
+    }
+
+    .button-alt {
+      background: #ffffff !important;
+      color: #374151 !important;
+      border: 1px solid #d1d5db !important;
+    }
+
+    .button-soft {
+      background: #f9fafb !important;
+      color: #6b7280 !important;
+      border: 1px solid #e5e7eb !important;
+    }
+
+    .button:hover,
+    .button-alt:hover,
+    .button-soft:hover {
+      transform: translateY(-1px);
+      opacity: 0.96;
+    }
+
+    .chip {
+      background: #fff7ed !important;
+      color: #c2410c !important;
+      border: 1px solid #fed7aa !important;
+    }
+
+    .hero {
+      grid-template-columns: 1fr !important;
+      gap: 14px !important;
+      padding: 20px !important;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2rem, 3vw, 2.8rem) !important;
+      line-height: 1.1 !important;
+      color: #111827 !important;
+    }
+
+    .hero-side {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: grid !important;
+    }
+
+    .quick-box,
+    .spotlight {
+      padding: 16px !important;
+      border-radius: 8px !important;
+    }
+
+    .auth-layout,
+    .shop-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .products-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 16px !important;
+    }
+
+    .product-card {
+      border-radius: 8px !important;
+      padding: 16px !important;
+    }
+
+    .product-gallery-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .product-gallery-row img {
+      width: 100%;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .cart-shell {
+      top: 82px !important;
+      display: grid !important;
+      gap: 16px !important;
+    }
+
+    .cart-shell .panel {
+      padding: 16px !important;
+      border-radius: 8px !important;
+    }
+
+    .cart-list {
+      gap: 12px !important;
+    }
+
+    .cart-line {
+      border-radius: 8px !important;
+      padding: 14px !important;
+      background: #ffffff !important;
+      border: 1px solid #eceff3 !important;
+    }
+
+    .cart-line-shell {
+      display: grid;
+      grid-template-columns: 84px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .cart-line-cover {
+      width: 84px;
+      height: 84px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: #9ca3af;
+      font-weight: 700;
+    }
+
+    .cart-line-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cart-line-head {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 4px;
+    }
+
+    .cart-line-head strong {
+      margin: 0 !important;
+      color: #111827 !important;
+      font-size: 1rem !important;
+    }
+
+    .cart-line-head span {
+      color: #6b7280;
+      font-size: 0.86rem;
+    }
+
+    .cart-line-actions {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px;
+      border-top: 1px solid #eef2f7;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+
+    .cart-total {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      color: #111827 !important;
+    }
+
+    .checkout-summary-box {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 12px;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: #4b5563;
+    }
+
+    .summary-row strong {
+      color: #111827;
+      margin: 0 !important;
+      font-size: 0.98rem !important;
+    }
+
+    .summary-row.total {
+      padding-top: 8px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .summary-row.total strong {
+      color: #ee4d2d !important;
+      font-size: 1.1rem !important;
+    }
+
+    .status {
+      white-space: pre-wrap;
+      background: #fff7ed !important;
+      border: 1px solid #fed7aa !important;
+      border-radius: 8px !important;
+      padding: 10px 12px !important;
+    }
+
+    .payments-grid,
+    .orders-grid,
+    .reviews-grid,
+    .faq-grid {
+      gap: 16px !important;
+    }
+
+    .payment-card,
+    .order-card,
+    .faq-card,
+    .review-card {
+      border-radius: 8px !important;
+      padding: 16px !important;
+    }
+
+    .chat-thread {
+      background: #f8fafc !important;
+      border: 1px solid #e5e7eb !important;
+      border-radius: 8px !important;
+      box-shadow: none !important;
+    }
+
+    .chat-bubble {
+      background: #ffffff !important;
+      border: 1px solid #e5e7eb !important;
+      color: #111827 !important;
+      box-shadow: none !important;
+    }
+
+    .chat-bubble.from-customer {
+      background: #fff7ed !important;
+      border-color: #fed7aa !important;
+    }
+
+    .chat-bubble.from-staff {
+      background: #eff6ff !important;
+      border-color: #bfdbfe !important;
+    }
+
+    .chat-compose {
+      grid-template-columns: minmax(0, 1fr) 150px !important;
+    }
+
+    @media (max-width: 1100px) {
+      .auth-layout,
+      .shop-layout,
+      .hero-side,
+      .products-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .cart-shell {
+        position: static !important;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 12px !important;
+      }
+
+      .cart-line-shell,
+      .chat-compose,
+      .cart-line-actions {
+        grid-template-columns: 1fr !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+      }
+    }
+
+    /* Liquid glass finish */
+    .nav,
+    .card,
+    .panel,
+    .product-card,
+    .payment-card,
+    .faq-card,
+    .review-card,
+    .order-card,
+    .spotlight,
+    .quick-box,
+    .cart-line,
+    .chat-thread,
+    .checkout-summary-box,
+    .status {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.76)) !important;
+      border: 1px solid rgba(255, 255, 255, 0.82) !important;
+      box-shadow:
+        0 16px 36px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.96) !important;
+      backdrop-filter: blur(22px) saturate(145%) !important;
+    }
+
+    .nav::before,
+    .card::before,
+    .cart-line::before,
+    .checkout-summary-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(140deg, rgba(255, 255, 255, 0.5), transparent 22%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 46%);
+      pointer-events: none;
+    }
+
+    .button,
+    .button-alt,
+    .button-soft,
+    .chip,
+    .badge {
+      backdrop-filter: blur(16px) saturate(150%);
+    }
+  </style>
+  <style>
+    .promo-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .promo-nav-button {
+      width: 40px;
+      height: 40px;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      background: #fff;
+      color: #111827;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .promo-nav-button:hover {
+      transform: translateY(-2px);
+      border-color: #fb923c;
+      box-shadow: 0 12px 24px rgba(249, 115, 22, 0.16);
+    }
+
+    .sale-ribbon {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #fb923c, #f97316);
+      color: #fff;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      box-shadow: 0 10px 20px rgba(249, 115, 22, 0.22);
+    }
+
+    .product-sales-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .product-sales-line span {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #c2410c;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      .promo-controls {
+        justify-content: space-between;
+      }
+    }
+  </style>
+  <style>
+    .market-notice-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px !important;
+      margin-top: 14px;
+    }
+
+    .market-notice-copy {
+      display: grid;
+      gap: 4px;
+    }
+
+    .market-notice-copy strong {
+      font-size: 0.92rem;
+      color: #0f172a;
+    }
+
+    .market-notice-copy span {
+      color: #64748b;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .market-notice-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .market-metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .market-metric-card {
+      padding: 18px !important;
+      display: grid;
+      gap: 6px;
+    }
+
+    .market-metric-card span {
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+
+    .market-metric-card strong {
+      font-size: 1.4rem;
+      color: #111827;
+    }
+
+    .market-metric-card small {
+      color: #94a3b8;
+    }
+
+    .market-category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .market-category-card {
+      text-align: left;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      display: grid;
+      gap: 4px;
+    }
+
+    .market-category-card:hover {
+      transform: translateY(-2px);
+      border-color: #fdba74;
+      box-shadow: 0 14px 28px rgba(249, 115, 22, 0.12);
+    }
+
+    .market-category-card strong {
+      color: #0f172a;
+      font-size: 0.96rem;
+    }
+
+    .market-category-card span,
+    .market-category-card small {
+      color: #64748b;
+    }
+
+    .market-toolbar {
+      align-items: end;
+    }
+
+    .market-sort {
+      min-width: 180px;
+    }
+
+    .market-toolbar-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin: 12px 0 4px;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    .market-toolbar-meta strong {
+      color: #0f172a;
+      font-size: 0.96rem;
+    }
+
+    @media (max-width: 960px) {
+      .market-metrics-strip,
+      .market-category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .market-notice-bar,
+      .market-toolbar-meta {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .market-metrics-strip,
+      .market-category-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <style>
+    .order-chat-layout {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .order-chat-sidebar {
+      display: grid;
+      gap: 10px;
+    }
+
+    .order-chat-nav-item {
+      text-align: left;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      cursor: pointer;
+      display: grid;
+      gap: 4px;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .order-chat-nav-item:hover {
+      transform: translateY(-2px);
+      border-color: #fdba74;
+      box-shadow: 0 12px 24px rgba(249, 115, 22, 0.12);
+    }
+
+    .order-chat-nav-item.is-active {
+      background: #fff7ed;
+      border-color: #fdba74;
+      box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.18);
+    }
+
+    .order-chat-nav-item strong {
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .order-chat-nav-item span,
+    .order-chat-nav-item small {
+      color: #64748b;
+      line-height: 1.45;
+    }
+
+    .order-chat-thread {
+      min-height: 520px;
+    }
+
+    .order-chat-main {
+      display: grid;
+      gap: 14px;
+    }
+
+    .order-chat-summary-card {
+      padding: 16px !important;
+      display: grid;
+      gap: 14px;
+    }
+
+    .order-chat-summary-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 0 12px;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .order-chat-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .order-chat-summary-grid div {
+      display: grid;
+      gap: 4px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+    }
+
+    .order-chat-summary-grid span {
+      color: #64748b;
+      font-size: 0.82rem;
+    }
+
+    .order-chat-summary-grid strong {
+      color: #0f172a;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .order-chat-nav-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .order-chat-nav-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .order-chat-nav-item.is-success,
+    .order-chat-summary-head.is-success {
+      border-color: #86efac !important;
+    }
+
+    .order-chat-nav-item.is-info,
+    .order-chat-summary-head.is-info {
+      border-color: #93c5fd !important;
+    }
+
+    .order-chat-nav-item.is-warn,
+    .order-chat-summary-head.is-warn {
+      border-color: #fdba74 !important;
+    }
+
+    .order-chat-nav-item.is-muted,
+    .order-chat-summary-head.is-muted {
+      border-color: #cbd5e1 !important;
+    }
+
+    .chat-bubble-list {
+      position: relative;
+      padding-left: 8px;
+    }
+
+    .chat-bubble-list::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #e2e8f0, transparent);
+      pointer-events: none;
+    }
+
+    .chat-bubble {
+      position: relative;
+      margin-left: 26px;
+    }
+
+    .chat-bubble::before {
+      content: "";
+      position: absolute;
+      left: -18px;
+      top: 18px;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      border: 2px solid #fff;
+      z-index: 1;
+    }
+
+    .chat-bubble.from-customer::before {
+      background: #fb923c;
+    }
+
+    .chat-bubble.from-staff::before {
+      background: #60a5fa;
+    }
+
+    .chat-bubble.from-system::before {
+      background: #94a3b8;
+    }
+
+    .shell {
+      gap: 18px !important;
+    }
+
+    .hero {
+      grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr) !important;
+      padding: 26px !important;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(2rem, 3vw, 3rem) !important;
+      line-height: 1.05 !important;
+      margin-bottom: 10px !important;
+    }
+
+    .market-notice-bar,
+    .market-metric-card,
+    .market-category-card,
+    .shelf-card,
+    .payment-card,
+    .faq-card,
+    .review-card,
+    .order-card,
+    .product-card,
+    .panel {
+      border-radius: 14px !important;
+    }
+
+    .market-category-panel,
+    .promo-banner,
+    .panel {
+      padding: 20px !important;
+    }
+
+    .market-toolbar {
+      display: grid !important;
+      grid-template-columns: minmax(220px, 1fr) 190px;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .market-search,
+    .market-sort {
+      min-width: 0;
+    }
+
+    .category-pills {
+      grid-column: 1 / -1;
+    }
+
+    .products-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 16px !important;
+    }
+
+    .product-card {
+      padding: 16px !important;
+      gap: 10px !important;
+    }
+
+    .product-banner {
+      min-height: 190px !important;
+    }
+
+    .product-card-top {
+      align-items: flex-start !important;
+    }
+
+    .product-card-top strong {
+      font-size: 1rem !important;
+      line-height: 1.4 !important;
+    }
+
+    .product-stock-note {
+      font-size: 0.78rem !important;
+      color: #94a3b8 !important;
+    }
+
+    .price {
+      font-size: 1.25rem !important;
+      margin-top: 2px;
+    }
+
+    .sale-ribbon {
+      font-size: 0.72rem !important;
+      padding: 6px 10px !important;
+    }
+
+    .compact-product-list {
+      gap: 10px !important;
+    }
+
+    .compact-product-card {
+      border-radius: 12px !important;
+      padding: 12px !important;
+    }
+
+    .cart-shell {
+      top: 82px !important;
+    }
+
+    .checkout-summary-box {
+      padding: 14px !important;
+    }
+
+    .member-center {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+      gap: 16px !important;
+    }
+
+    @media (max-width: 1100px) {
+      .hero,
+      .shop-layout,
+      .member-center,
+      .order-chat-layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      .products-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .products-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .market-toolbar {
+        grid-template-columns: 1fr !important;
+      }
+
+      .order-chat-summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <style>
+    /* Final Discord storefront theme */
+    :root {
+      color-scheme: dark !important;
+      --text: #f2f3f5 !important;
+      --muted: #b5bac1 !important;
+      --line: #3f4147 !important;
+      --card: #2b2d31 !important;
+      --card-strong: #313338 !important;
+      --brand-a: #5865f2 !important;
+      --brand-b: #7983f5 !important;
+      --brand-c: #4752c4 !important;
+      --success: #3ba55d !important;
+      --warn: #faa61a !important;
+      --danger: #ed4245 !important;
+      --surface: #1e1f22 !important;
+      --surface-2: #232428 !important;
+    }
+
+    html,
+    body {
+      background: var(--surface) !important;
+    }
+
+    body,
+    body p,
+    body span,
+    body small,
+    body strong,
+    body h1,
+    body h2,
+    body h3,
+    body h4,
+    body a,
+    body label {
+      color: var(--text) !important;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(88, 101, 242, 0.18), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(59, 165, 93, 0.1), transparent 16%),
+        linear-gradient(180deg, #1e1f22 0%, #17181c 100%) !important;
+    }
+
+    .page {
+      padding: 18px !important;
+      backdrop-filter: none !important;
+    }
+
+    .shell {
+      max-width: 1480px !important;
+      gap: 16px !important;
+    }
+
+    .card,
+    .spotlight,
+    .quick-box,
+    .panel,
+    .product-card,
+    .cart-line,
+    .order-card,
+    .payment-card,
+    .faq-card,
+    .review-card,
+    .shelf-card,
+    .compact-product-card,
+    .promo-pill-card,
+    .member-metric,
+    .verification-stack {
+      background: #2b2d31 !important;
+      border: 1px solid #3f4147 !important;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22) !important;
+      backdrop-filter: none !important;
+      border-radius: 20px !important;
+    }
+
+    .nav {
+      background: rgba(35, 36, 40, 0.92) !important;
+      border: 1px solid #3f4147 !important;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+
+    .nav-mark,
+    .review-avatar {
+      background: linear-gradient(135deg, #5865f2, #7983f5) !important;
+      color: #ffffff !important;
+    }
+
+    .button,
+    .button-alt,
+    .button-soft,
+    .compact-product-action,
+    .mini-button {
+      border-radius: 12px !important;
+      font-weight: 800 !important;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease !important;
+    }
+
+    .button {
+      background: #5865f2 !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 20px rgba(88, 101, 242, 0.24) !important;
+    }
+
+    .button:hover {
+      background: #4752c4 !important;
+      box-shadow: 0 16px 24px rgba(88, 101, 242, 0.3) !important;
+    }
+
+    .button-alt,
+    .button-soft,
+    .compact-product-action,
+    .mini-button {
+      background: #232428 !important;
+      color: #f2f3f5 !important;
+      border: 1px solid #3f4147 !important;
+    }
+
+    .hero,
+    .promo-banner {
+      background:
+        radial-gradient(circle at top right, rgba(88, 101, 242, 0.22), transparent 24%),
+        linear-gradient(180deg, #313338 0%, #2b2d31 100%) !important;
+      border: 1px solid #3f4147 !important;
+    }
+
+    .hero-copy h1,
+    .promo-copy h2,
+    .section-head h2 {
+      color: #ffffff !important;
+    }
+
+    .hero-copy p,
+    .promo-copy p,
+    .section-head p,
+    .spotlight p,
+    .quick-box p,
+    .product-card p,
+    .payment-card p,
+    .faq-card p,
+    .review-card p,
+    .order-card p,
+    .panel p,
+    .compact-product-meta small,
+    .order-card small,
+    .empty-note,
+    .footnote {
+      color: #b5bac1 !important;
+    }
+
+    .chip,
+    .badge,
+    .product-category-chip,
+    .feature-pill,
+    .category-pill {
+      background: #232428 !important;
+      border: 1px solid #3f4147 !important;
+      color: #f2f3f5 !important;
+      box-shadow: none !important;
+    }
+
+    .category-pill:hover,
+    .category-pill.is-active {
+      background: rgba(88, 101, 242, 0.16) !important;
+      color: #ffffff !important;
+      border-color: #5865f2 !important;
+      box-shadow: 0 10px 20px rgba(88, 101, 242, 0.14) !important;
+    }
+
+    .promo-dot {
+      background: #4e5058 !important;
+    }
+
+    .promo-dot.is-active {
+      background: #5865f2 !important;
+    }
+
+    .promo-pill-card strong,
+    .product-card strong,
+    .compact-product-meta strong,
+    .price,
+    .cart-total,
+    .member-metric strong {
+      color: #ffffff !important;
+    }
+
+    .promo-pill-card small,
+    .product-stock-note,
+    .member-metric span,
+    .status-badges,
+    .verification-actions {
+      color: #b5bac1 !important;
+    }
+
+    .product-banner,
+    .compact-product-cover,
+    .qty-stepper,
+    .cart-line,
+    .status,
+    .member-metric,
+    .verification-stack {
+      background: #232428 !important;
+      border-color: #3f4147 !important;
+    }
+
+    .qty-stepper-value {
+      color: #f2f3f5 !important;
+    }
+
+    input,
+    select,
+    textarea {
+      background: #1e1f22 !important;
+      color: #f2f3f5 !important;
+      border: 1px solid #3f4147 !important;
+      box-shadow: none !important;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #949ba4 !important;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #5865f2 !important;
+      box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.18) !important;
+    }
+
+    .status {
+      color: #f2f3f5 !important;
+    }
+
+    .status.success {
+      border-color: rgba(59, 165, 93, 0.36) !important;
+      color: #c8f5d5 !important;
+    }
+
+    .status.warn {
+      border-color: rgba(250, 166, 26, 0.36) !important;
+      color: #ffe8b3 !important;
+    }
+
+    .status.error {
+      border-color: rgba(237, 66, 69, 0.36) !important;
+      color: #ffd3d4 !important;
+    }
+
+    .shop-layout {
+      grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr) !important;
+      gap: 18px !important;
+    }
+
+    .cart-shell {
+      top: 84px !important;
+    }
+
+    .reviews-grid,
+    .payments-grid,
+    .faq-grid {
+      gap: 16px !important;
+    }
+
+    .member-center {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
+
+    .review-user {
+      align-items: center;
+    }
+
+    .review-avatar,
+    .compact-product-cover,
+    .product-banner img {
+      border-color: #4e5058 !important;
+    }
+
+    .cart-total,
+    .cart-line,
+    .order-meta,
+    .status-row,
+    .product-card-footer {
+      border-color: #3f4147 !important;
+    }
+
+    @media (max-width: 1180px) {
+      .hero,
+      .promo-banner,
+      .shop-layout,
+      .member-center,
+      .grid-three,
+      .products-grid,
+      .payments-grid,
+      .reviews-grid,
+      .faq-grid,
+      .shelf-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+  <style>
+    /* Final review-ready storefront theme */
+    :root {
+      color-scheme: light !important;
+      --text: #111827 !important;
+      --muted: #6b7280 !important;
+      --line: #e5e7eb !important;
+      --card: #ffffff !important;
+      --card-strong: #fff7ed !important;
+      --brand-a: #ea580c !important;
+      --brand-b: #fb923c !important;
+      --brand-c: #fdba74 !important;
+      --surface: #f8fafc !important;
+      --surface-2: #ffffff !important;
+      --success: #15803d !important;
+      --warn: #b45309 !important;
+      --danger: #dc2626 !important;
+    }
+
+    html,
+    body {
+      background: #f8fafc !important;
+    }
+
+    body,
+    body p,
+    body span,
+    body small,
+    body strong,
+    body h1,
+    body h2,
+    body h3,
+    body h4,
+    body a,
+    body label {
+      color: var(--text) !important;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top right, rgba(251, 146, 60, 0.12), transparent 18%),
+        linear-gradient(180deg, #f8fafc 0%, #fff7ed 100%) !important;
+    }
+
+    .page {
+      padding: 20px !important;
+    }
+
+    .card,
+    .spotlight,
+    .quick-box,
+    .panel,
+    .product-card,
+    .cart-line,
+    .order-card,
+    .payment-card,
+    .faq-card,
+    .review-card,
+    .shelf-card,
+    .compact-product-card,
+    .promo-pill-card,
+    .member-metric,
+    .verification-stack {
+      background: #ffffff !important;
+      border: 1px solid #e5e7eb !important;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05) !important;
+      border-radius: 20px !important;
+      backdrop-filter: none !important;
+    }
+
+    .nav {
+      background: rgba(255,255,255,0.94) !important;
+      border: 1px solid #e5e7eb !important;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .nav-mark,
+    .review-avatar {
+      background: linear-gradient(135deg, #ea580c, #fb923c) !important;
+      color: #ffffff !important;
+    }
+
+    .button {
+      background: linear-gradient(135deg, #ea580c, #fb923c) !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 24px rgba(234, 88, 12, 0.18) !important;
+    }
+
+    .button:hover {
+      background: linear-gradient(135deg, #c2410c, #ea580c) !important;
+    }
+
+    .button-alt,
+    .button-soft,
+    .compact-product-action,
+    .mini-button {
+      background: #ffffff !important;
+      color: #374151 !important;
+      border: 1px solid #d1d5db !important;
+    }
+
+    .hero,
+    .promo-banner {
+      background: linear-gradient(135deg, #fff7ed, #ffffff 55%, #eff6ff) !important;
+      border: 1px solid #fed7aa !important;
+    }
+
+    .hero-copy h1,
+    .promo-copy h2,
+    .section-head h2,
+    .price,
+    .cart-total,
+    .member-metric strong {
+      color: #111827 !important;
+      text-shadow: none !important;
+    }
+
+    .hero-copy p,
+    .promo-copy p,
+    .section-head p,
+    .spotlight p,
+    .quick-box p,
+    .product-card p,
+    .payment-card p,
+    .faq-card p,
+    .review-card p,
+    .order-card p,
+    .panel p,
+    .compact-product-meta small,
+    .order-card small,
+    .empty-note,
+    .footnote,
+    .eyebrow {
+      color: #6b7280 !important;
+    }
+
+    .chip,
+    .badge,
+    .product-category-chip,
+    .feature-pill,
+    .category-pill,
+    .status-chip {
+      background: #fff7ed !important;
+      border: 1px solid #fed7aa !important;
+      color: #c2410c !important;
+      box-shadow: none !important;
+    }
+
+    .category-pill:hover,
+    .category-pill.is-active {
+      background: #ffedd5 !important;
+      border-color: #fb923c !important;
+      color: #9a3412 !important;
+    }
+
+    .product-banner,
+    .compact-product-cover,
+    .qty-stepper,
+    .cart-line,
+    .status,
+    .member-metric,
+    .verification-stack,
+    .payment-meta,
+    .faq-meta,
+    .order-meta,
+    .checkout-summary-box {
+      background: #ffffff !important;
+      border: 1px solid #e5e7eb !important;
+    }
+
+    .market-notice-bar {
+      background: linear-gradient(90deg, #fff7ed, #ffffff) !important;
+      border-color: #fed7aa !important;
+    }
+
+    .review-ready-grid,
+    .trust-grid,
+    .policy-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .review-ready-card,
+    .trust-card,
+    .policy-card {
+      padding: 18px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    }
+
+    .review-ready-card strong,
+    .trust-card strong,
+    .policy-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+      color: #111827;
+    }
+
+    .policy-card ul,
+    .trust-card ul {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: #4b5563;
+      line-height: 1.7;
+    }
+
+    .review-contact {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      align-items: start;
+    }
+
+    .review-contact .panel {
+      min-height: 100%;
+    }
+
+    .review-footer {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+      color: #6b7280 !important;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1100px) {
+      .review-ready-grid,
+      .trust-grid,
+      .policy-grid,
+      .review-contact {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="shell">
+      <nav class="nav card">
+        <div class="nav-brand">
+          <div class="nav-mark">星</div>
+          <span id="navBrandText">星光商城</span>
+        </div>
+        <div class="nav-links">
+          <a class="button-alt mini-button" href="#products">商品</a>
+          <a class="button-alt mini-button" href="#service-info">服務資訊</a>
+          <a class="button-alt mini-button" href="#auth">註冊登入</a>
+          <a class="button-alt mini-button" href="#cart">購物車</a>
+          <a class="button-alt mini-button" href="#orders">我的訂單</a>
+          <a class="button-alt mini-button" href="#order-chat">訂單客服</a>
+          <a class="button-alt mini-button" href="#faq">FAQ</a>
+        </div>
+        <div class="nav-actions">
+          <span class="chip" id="accountStatus">未登入</span>
+          <span class="chip" id="cartStatus">購物車 0 件</span>
+        </div>
+      </nav>
+
+      <section class="market-notice-bar card">
+        <div class="market-notice-copy">
+          <strong>商城公告</strong>
+          <span id="marketNoticeText">精選商品、補貨消息與付款方式會跟著後台同步，結帳後可直接在網站追蹤客服回覆。</span>
+        </div>
+        <div class="market-notice-badges">
+          <span class="chip" id="marketNoticeOrders">0 項商品</span>
+          <span class="chip" id="marketNoticePayments">0 種付款</span>
+        </div>
+      </section>
+
+      <section class="hero card">
+        <div class="hero-copy">
+          <p class="eyebrow">Official Storefront</p>
+          <h1 id="heroTitle">星光商城</h1>
+          <p id="heroDescription">這裡會顯示後台設定的商城介紹、商品與付款方式，顧客可以註冊自己的帳號、加入購物車、送出開單購買訂單。</p>
+          <div class="hero-actions">
+            <a class="button" href="#products">開始購物</a>
+            <a class="button-alt" href="#auth">註冊 / 登入</a>
+          </div>
+          <div class="hero-chips">
+            <span class="chip">開單購物車</span>
+            <span class="chip">會員登入下單</span>
+            <span class="chip">付款方式由後台控制</span>
+          </div>
+        </div>
+        <div class="hero-side">
+          <article class="spotlight">
+            <span class="eyebrow">Store Status</span>
+            <strong id="storeStatusTitle">商城開放中</strong>
+            <p id="storeStatusText">商品與付款方式會跟著後台設定同步更新，適合你之後掛正式網域直接用。</p>
+          </article>
+          <div class="grid-three">
+            <article class="quick-box">
+              <span>登入方式</span>
+              <strong>自有帳號</strong>
+              <p>顧客可以先註冊自己的帳號，再進購物車與下單流程。</p>
+            </article>
+            <article class="quick-box">
+              <span>Google 入口</span>
+              <strong id="googleStatusText">待接 OAuth</strong>
+              <p>Google 正式登入需要你之後提供 OAuth 憑證，入口已經預留。</p>
+            </article>
+            <article class="quick-box">
+              <span>付款流</span>
+              <strong>後台控管</strong>
+              <p>顧客可選後台開放的付款方式，你再於後台處理代碼與付款狀態。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="market-metrics-strip">
+        <article class="market-metric-card card">
+          <span>賣場商品</span>
+          <strong id="marketMetricProducts">0</strong>
+          <small>後台同步上架中</small>
+        </article>
+        <article class="market-metric-card card">
+          <span>精選商品</span>
+          <strong id="marketMetricFeatured">0</strong>
+          <small>首頁主打曝光</small>
+        </article>
+        <article class="market-metric-card card">
+          <span>付款方式</span>
+          <strong id="marketMetricPayments">0</strong>
+          <small>結帳可直接選擇</small>
+        </article>
+        <article class="market-metric-card card">
+          <span>客服方式</span>
+          <strong>站內追單</strong>
+          <small>不跳 Discord 工單</small>
+        </article>
+      </section>
+
+      <section class="promo-banner card">
+        <div class="promo-copy">
+          <p class="eyebrow">Campaign</p>
+          <h2>商城限時活動與主打專區</h2>
+          <p>把熱門商品、精選上架和站內客服一起整合，讓顧客更快完成下單，也讓商城首頁更像正式賣場。</p>
+          <div class="promo-controls">
+            <button class="promo-nav-button" id="promoPrevButton" type="button" aria-label="上一個活動">←</button>
+            <div class="promo-dots" id="promoDots"></div>
+            <button class="promo-nav-button" id="promoNextButton" type="button" aria-label="下一個活動">→</button>
+          </div>
+        </div>
+        <div class="promo-pill-row">
+          <div class="promo-pill-card" data-promo-card>
+            <strong>網站託管方案</strong>
+            <small>網站部署、維護與託管服務集中展示</small>
+          </div>
+          <div class="promo-pill-card" data-promo-card>
+            <strong>機器人代做</strong>
+            <small>Discord 機器人客製需求可直接下單與對接</small>
+          </div>
+          <div class="promo-pill-card" data-promo-card>
+            <strong>售後追蹤</strong>
+            <small>付款、交付、客服回覆皆保留在站內</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="section-head">
+          <p class="eyebrow">Store Review</p>
+          <h2>商店資訊與服務內容</h2>
+          <p>本網站為實際使用中的交易展示網站，提供商品資訊、價格、付款說明、訂單客服與售後處理流程，供顧客與金流審核查看。</p>
+        </div>
+        <div class="review-ready-grid">
+          <article class="review-ready-card">
+            <strong>販售內容</strong>
+            <p>本網站目前主要提供網站託管、網站維護與 Discord 機器人代做 / 客製開發服務；實際服務項目、價格與交付說明以下方商品區為準。</p>
+          </article>
+          <article class="review-ready-card">
+            <strong>交易流程</strong>
+            <p>顧客可在本網站查看商品、加入購物車、選擇付款方式、送出訂單，並於網站內持續追蹤訂單與客服進度。</p>
+          </article>
+          <article class="review-ready-card">
+            <strong>售後支援</strong>
+            <p>網站提供訂單查詢、站內客服、付款方式說明與常見問題區塊，方便顧客處理付款、交付與售後需求。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="section-head">
+          <p class="eyebrow">Transaction Policy</p>
+          <h2>付款、交付與售後說明</h2>
+          <p>以下資訊固定公開顯示，作為本站交易規則與審核參考。</p>
+        </div>
+        <div class="policy-grid">
+          <article class="policy-card">
+            <strong>付款方式</strong>
+            <p>顧客可依本網站顯示的付款方式完成交易，包含超商代碼繳費、銀行轉帳或後台啟用的其他收款方式。</p>
+          </article>
+          <article class="policy-card">
+            <strong>交付方式</strong>
+            <p>依服務內容提供網站部署 / 託管開通、人工對接設定、機器人功能交付與站內客服通知流程，細節會於訂單客服中心持續更新。</p>
+          </article>
+          <article class="policy-card">
+            <strong>售後與客服</strong>
+            <p>顧客下單後可在本站查看訂單狀態並透過訂單客服中心聯絡處理，付款核對、交付進度與問題回覆皆保留於站內。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card panel" id="service-info">
+        <div class="section-head">
+          <p class="eyebrow">Company Profile</p>
+          <h2>關於我們 / 客服方式 / 服務條款</h2>
+          <p>本區塊提供商店基本資訊、聯絡方式與服務規則，方便顧客與金流審核快速確認本站的交易模式。</p>
+        </div>
+        <div class="review-ready-grid">
+          <article class="review-ready-card">
+            <strong>關於我們</strong>
+            <p>本站為實際營運中的數位服務商城，主要提供網站託管、網站維護與 Discord 機器人代做服務，透過網站下單與站內客服完成付款、交付與售後流程。</p>
+          </article>
+          <article class="review-ready-card">
+            <strong>客服方式</strong>
+            <p>顧客可於本站註冊後送出訂單，並透過「訂單客服」頁面追蹤進度、補充需求與接收回覆。若需人工協助，亦可依訂單備註留下聯絡方式，由客服後續對接。</p>
+          </article>
+          <article class="review-ready-card">
+            <strong>服務條款</strong>
+            <p>所有服務均以本站顯示的方案內容、價格與付款方式為準。顧客完成付款後，將依訂單內容安排交付與處理，若有變更需求或售後問題，皆以站內客服紀錄作為處理依據。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card panel market-category-panel">
+        <div class="section-head">
+          <p class="eyebrow">Category Zone</p>
+          <h2>賣場分類捷徑</h2>
+          <p>本站目前以網站託管與機器人代做為主要服務分類，顧客可直接點入對應區域查看方案。</p>
+        </div>
+        <div class="market-category-grid" id="marketCategoryGrid"></div>
+      </section>
+
+      <section class="card panel" id="auth">
+        <div class="section-head">
+          <p class="eyebrow">Account Center</p>
+          <h2>註冊帳號與登入帳號</h2>
+          <p>顧客帳號會記住購物車訂單與購買資訊。後台也會檢查帳號名稱，已經註冊過的名稱不能重複再註冊。</p>
+        </div>
+        <div class="auth-layout">
+          <article class="panel card">
+            <p class="eyebrow">Register</p>
+            <label><span>帳號名稱</span><input id="registerUsername" placeholder="只能註冊一次的商城帳號名稱" /></label>
+            <label><span>顯示名稱</span><input id="registerDisplayName" placeholder="顧客暱稱" /></label>
+            <label><span>Email</span><input id="registerEmail" type="email" placeholder="you@example.com" /></label>
+            <label><span>電話號碼</span><input id="registerPhone" placeholder="例如 0912345678" /></label>
+            <label><span>密碼</span><input id="registerPassword" type="password" placeholder="至少 8 碼會更穩" /></label>
+            <div class="inline-actions">
+              <button class="button" id="registerButton" type="button">註冊自己的帳號</button>
+              <button class="button-soft" id="googleRegisterButton" type="button">Google 註冊</button>
+            </div>
+            <div class="footnote" id="registerHint">註冊後可再到會員中心做 Gmail 驗證與電話驗證。</div>
+          </article>
+
+          <article class="panel card">
+            <p class="eyebrow">Login</p>
+            <label><span>帳號名稱</span><input id="loginUsername" placeholder="輸入你註冊的帳號名稱" /></label>
+            <label><span>密碼</span><input id="loginPassword" type="password" placeholder="輸入密碼登入" /></label>
+            <div class="inline-actions">
+              <button class="button" id="loginButton" type="button">登入帳號</button>
+              <button class="button-alt" id="logoutButton" type="button">登出</button>
+            </div>
+            <div class="status" id="authStatus">登入後就可以送出開單購物車訂單。</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="shop-layout">
+        <section class="card panel" id="products">
+          <div class="section-head">
+            <p class="eyebrow">Products</p>
+            <h2>後台上架商品</h2>
+          <p>這裡會只顯示網站託管與機器人代做相關商品。你在後台新增、上架、停用對應服務後，這裡會跟著同步。</p>
+          </div>
+          <div class="market-toolbar">
+            <div class="market-search">
+              <label>
+                <span>搜尋商品</span>
+                <input id="productSearchInput" placeholder="輸入商品名稱、分類或關鍵字" />
+              </label>
+            </div>
+            <div class="market-sort">
+              <label>
+                <span>排序方式</span>
+                <select id="productSortSelect">
+                  <option value="featured">精選優先</option>
+                  <option value="latest">最新上架</option>
+                  <option value="price-asc">價格低到高</option>
+                  <option value="price-desc">價格高到低</option>
+                </select>
+              </label>
+            </div>
+            <div class="category-pills" id="productCategoryBar"></div>
+          </div>
+          <div class="market-toolbar-meta">
+            <strong id="productResultsLabel">0 項商品</strong>
+            <span>可直接加入購物車並透過站內客服追蹤網站託管 / 機器人代做訂單</span>
+          </div>
+          <div class="products-grid" id="productsGrid"></div>
+        </section>
+
+        <aside class="cart-shell" id="cart">
+          <section class="card panel">
+            <div class="section-head">
+              <p class="eyebrow">Cart</p>
+              <h2>購物車</h2>
+              <p>確認商品、數量與金額後，再前往結帳。</p>
+            </div>
+            <div class="cart-list" id="cartList"></div>
+            <div class="cart-total">
+              <span>商品總額</span>
+              <span id="cartTotal">0</span>
+            </div>
+          </section>
+
+          <section class="card panel">
+            <div class="section-head">
+              <p class="eyebrow">Checkout</p>
+              <h2>購物車總計</h2>
+              <p>付款方式由後台控制，這裡會顯示目前可用的結帳資訊。</p>
+            </div>
+            <div class="checkout-summary-box">
+              <div class="summary-row">
+                <span>商品小計</span>
+                <strong id="checkoutSubtotal">NT$0</strong>
+              </div>
+              <div class="summary-row">
+                <span>付款方式</span>
+                <strong id="checkoutMethodLabel">未選擇</strong>
+              </div>
+              <div class="summary-row total">
+                <span>應付總額</span>
+                <strong id="checkoutGrandTotal">NT$0</strong>
+              </div>
+            </div>
+            <div class="checkout-feature-strip">
+              <div class="feature-pill">🛡️ 後台控單</div>
+              <div class="feature-pill">🧾 建立訂單紀錄</div>
+              <div class="feature-pill">💬 網站站內對話</div>
+            </div>
+            <label><span>付款方式</span><select id="paymentMethodSelect"></select></label>
+            <label><span>交付帳號 / Roblox 帳號</span><input id="deliveryAccount" placeholder="例如 Roblox 使用者名稱" /></label>
+            <label><span>聯絡方式</span><input id="contactField" placeholder="Discord / LINE / Email" /></label>
+            <label><span>訂單備註</span><textarea id="orderNote" placeholder="例如：付款後希望先私訊我、要哪個遊戲帳號收貨"></textarea></label>
+            <div class="status" id="paymentInstruction">請先選擇付款方式。</div>
+            <div class="inline-actions">
+              <button class="button" id="checkoutButton" type="button">送出購物車訂單</button>
+              <button class="button-alt" id="clearCartButton" type="button">清空購物車</button>
+            </div>
+          </section>
+        </aside>
+      </section>
+
+      <section class="card panel">
+        <div class="section-head">
+          <p class="eyebrow">Marketplace Picks</p>
+          <h2>熱門商品與最新上架</h2>
+          <p>把網站託管方案、機器人代做方案與最近上架內容集中展示，讓顧客更快找到需要的服務。</p>
+        </div>
+        <div class="shelf-grid">
+          <article class="shelf-card">
+            <div class="shelf-head">
+              <strong>熱門商品</strong>
+              <span class="badge">Hot</span>
+            </div>
+            <div class="compact-product-list" id="hotProductsGrid"></div>
+          </article>
+          <article class="shelf-card">
+            <div class="shelf-head">
+              <strong>精選商品</strong>
+              <span class="badge">Featured</span>
+            </div>
+            <div class="compact-product-list" id="featuredProductsGrid"></div>
+          </article>
+          <article class="shelf-card">
+            <div class="shelf-head">
+              <strong>最新上架</strong>
+              <span class="badge">New</span>
+            </div>
+            <div class="compact-product-list" id="latestProductsGrid"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="section-head">
+          <p class="eyebrow">Payment Methods</p>
+          <h2>後台開放的繳費選項</h2>
+          <p>這裡會顯示目前後台有啟用的付款方式與說明。你之後改付款流程，前台也會同步更新。</p>
+        </div>
+        <div class="payments-grid" id="paymentsGrid"></div>
+      </section>
+
+      <section class="review-contact">
+        <section class="card panel">
+          <div class="section-head">
+            <p class="eyebrow">Support & Service</p>
+            <h2>顧客聯絡與網站交易說明</h2>
+            <p>本網站不只是展示頁，顧客完成註冊與下單後，可直接在網站內查看訂單、付款狀態與客服回覆。</p>
+          </div>
+          <div class="trust-grid">
+            <article class="trust-card">
+              <strong>站內訂單追蹤</strong>
+              <ul>
+                <li>保留待付款、處理中、已完成等狀態</li>
+                <li>訂單會記錄付款方式、服務方案與聯絡方式</li>
+                <li>顧客可回到網站持續查看最新進度</li>
+              </ul>
+            </article>
+            <article class="trust-card">
+              <strong>站內客服中心</strong>
+              <ul>
+                <li>每筆訂單都可進入客服對話頁</li>
+                <li>可補充交付帳號、付款備註與需求</li>
+                <li>後台與顧客透過網站持續對話</li>
+              </ul>
+            </article>
+            <article class="trust-card">
+              <strong>交易審核用途</strong>
+              <ul>
+                <li>本網站提供實際服務方案上架與銷售內容</li>
+                <li>付款方式、FAQ 與售後資訊皆於本站公開</li>
+                <li>可作為實際交易網站提供審核查看</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="card panel">
+          <div class="section-head">
+            <p class="eyebrow">Site Information</p>
+            <h2>網站資訊</h2>
+            <p>以下資訊可作為對外審核與顧客查看的基本商店說明。</p>
+          </div>
+          <div class="review-footer">
+            <div><strong>網站用途：</strong>網站託管與機器人代做服務展示、購物車下單、付款方式說明、站內訂單追蹤與售後客服。</div>
+            <div><strong>交易模式：</strong>顧客於本站查看服務方案與價格後下單，後續付款、交付與售後皆由本站與後台系統處理。</div>
+            <div><strong>目前網址：</strong><span id="reviewSiteUrl">本頁面目前開啟網址即為實際交易網站連結。</span></div>
+            <div><strong>聯絡方式：</strong>顧客可透過本站「訂單客服中心」與站內訊息功能聯繫處理。</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="card panel" id="orders">
+        <div class="section-head">
+          <p class="eyebrow">My Orders</p>
+          <h2>我的訂單</h2>
+          <p>登入後可以查看自己送出的開單購物車訂單，目前狀態會由後台更新。</p>
+        </div>
+        <div class="member-center">
+          <article class="panel card">
+            <p class="eyebrow">Member Center</p>
+            <div class="member-profile">
+              <strong id="memberDisplayName">尚未登入</strong>
+              <p id="memberIdentityText">登入後會在這裡顯示你的會員名稱、帳號和 Email。</p>
+              <div class="status-badges">
+                <span class="badge" id="memberEmailStatus">Gmail 未驗證</span>
+                <span class="badge" id="memberPhoneStatus">電話未驗證</span>
+              </div>
+            </div>
+            <div class="member-metric-grid">
+              <div class="member-metric">
+                <span>會員身份</span>
+                <strong id="memberRole">顧客</strong>
+              </div>
+              <div class="member-metric">
+                <span>累積訂單</span>
+                <strong id="memberOrdersCount">0</strong>
+              </div>
+              <div class="member-metric">
+                <span>待處理</span>
+                <strong id="memberPendingCount">0</strong>
+              </div>
+            </div>
+          </article>
+          <article class="panel card">
+            <p class="eyebrow">Support Center</p>
+            <strong>網站客服與訂單追蹤中心</strong>
+            <p>你的訂單對話、付款進度和客服回覆都會留在網站裡，不需要另外跳去 Discord 看工單。</p>
+            <div class="verification-grid">
+              <div class="verification-stack">
+                <label><span>會員 Email</span><input id="profileEmail" type="email" placeholder="登入後可修改 Email" /></label>
+                <div class="verification-actions">
+                  <button class="button-soft" id="saveProfileButton" type="button">更新會員資料</button>
+                  <button class="button-alt" id="googleVerifyButton" type="button">保留 Google 入口</button>
+                </div>
+              </div>
+              <div class="verification-stack">
+                <label><span>會員電話</span><input id="profilePhone" placeholder="登入後可修改電話號碼" /></label>
+                <label><span>客服備註</span><input id="phoneVerifyCode" placeholder="例如：這支電話可聯絡、平日晚上回覆最快" /></label>
+                <div class="verification-actions">
+                  <button class="button-alt" id="sendPhoneCodeButton" type="button">更新聯絡方式</button>
+                  <button class="button" id="confirmPhoneCodeButton" type="button">查看客服提醒</button>
+                </div>
+                <div class="footnote" id="phoneVerifyHint">網站訂單現在以站內客服對話為主，付款和出貨回覆都會顯示在我的訂單。</div>
+              </div>
+            </div>
+          </article>
+        </div>
+        <div class="orders-grid" id="ordersGrid"></div>
+      </section>
+
+      <section class="card panel" id="order-chat">
+        <div class="section-head">
+          <p class="eyebrow">Order Chat</p>
+          <h2>訂單客服中心</h2>
+          <p>把購物訂單對話集中在這裡處理，不再塞在每一張訂單卡裡。</p>
+        </div>
+        <div class="order-chat-layout">
+          <aside class="order-chat-sidebar" id="orderChatSidebar"></aside>
+          <section class="order-chat-main">
+            <article class="card order-chat-summary-card" id="orderChatSummary"></article>
+            <section class="chat-thread order-chat-thread">
+            <div class="chat-thread-head">
+              <div>
+                <strong id="orderChatTitle">請先選擇一筆訂單</strong>
+                <small id="orderChatMeta">登入後可查看網站內的訂單對話。</small>
+              </div>
+              <span class="badge" id="orderChatStatus">待選擇</span>
+            </div>
+            <div class="chat-bubble-list" id="orderChatMessages"></div>
+            <div class="chat-compose">
+              <textarea id="orderChatInput" placeholder="例如：我已經付款完成、想補充收件帳號、想詢問出貨進度"></textarea>
+              <button class="button-alt" type="button" id="orderChatSendButton">送出網站訊息</button>
+            </div>
+            </section>
+          </section>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <div class="section-head">
+          <p class="eyebrow">Reviews</p>
+          <h2>網站顧客評價</h2>
+          <p>這裡會讀取你機器人收過的近期評價，前台信任感會比較完整。</p>
+        </div>
+        <div class="reviews-grid" id="reviewsGrid"></div>
+      </section>
+
+      <section class="card panel" id="faq">
+        <div class="section-head">
+          <p class="eyebrow">FAQ</p>
+          <h2>常見問題</h2>
+          <p>FAQ 也會直接從後台讀取，不用再手改 HTML 內容。</p>
+        </div>
+        <div class="faq-grid" id="faqGrid"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+      const apiBase = "/api/storefront";
+      const publicState = {
+        data: null,
+        cart: [],
+        account: null,
+        orders: [],
+        selectedOrderId: "",
+        filterCategory: "全部",
+        searchKeyword: "",
+        sortMode: "featured",
+        promoIndex: 0
+      };
+
+      const els = {
+        navBrandText: document.getElementById("navBrandText"),
+        marketNoticeText: document.getElementById("marketNoticeText"),
+        marketNoticeOrders: document.getElementById("marketNoticeOrders"),
+        marketNoticePayments: document.getElementById("marketNoticePayments"),
+        marketMetricProducts: document.getElementById("marketMetricProducts"),
+        marketMetricFeatured: document.getElementById("marketMetricFeatured"),
+        marketMetricPayments: document.getElementById("marketMetricPayments"),
+        heroTitle: document.getElementById("heroTitle"),
+        heroDescription: document.getElementById("heroDescription"),
+        storeStatusTitle: document.getElementById("storeStatusTitle"),
+        storeStatusText: document.getElementById("storeStatusText"),
+        googleStatusText: document.getElementById("googleStatusText"),
+        marketCategoryGrid: document.getElementById("marketCategoryGrid"),
+        productCategoryBar: document.getElementById("productCategoryBar"),
+        productSearchInput: document.getElementById("productSearchInput"),
+        productSortSelect: document.getElementById("productSortSelect"),
+        productResultsLabel: document.getElementById("productResultsLabel"),
+        promoDots: document.getElementById("promoDots"),
+      promoPrevButton: document.getElementById("promoPrevButton"),
+      promoNextButton: document.getElementById("promoNextButton"),
+      hotProductsGrid: document.getElementById("hotProductsGrid"),
+      featuredProductsGrid: document.getElementById("featuredProductsGrid"),
+      latestProductsGrid: document.getElementById("latestProductsGrid"),
+      accountStatus: document.getElementById("accountStatus"),
+      cartStatus: document.getElementById("cartStatus"),
+      authStatus: document.getElementById("authStatus"),
+      registerHint: document.getElementById("registerHint"),
+      productsGrid: document.getElementById("productsGrid"),
+      cartList: document.getElementById("cartList"),
+      cartTotal: document.getElementById("cartTotal"),
+      checkoutSubtotal: document.getElementById("checkoutSubtotal"),
+      checkoutMethodLabel: document.getElementById("checkoutMethodLabel"),
+      checkoutGrandTotal: document.getElementById("checkoutGrandTotal"),
+      paymentMethodSelect: document.getElementById("paymentMethodSelect"),
+        paymentInstruction: document.getElementById("paymentInstruction"),
+        reviewSiteUrl: document.getElementById("reviewSiteUrl"),
+        paymentsGrid: document.getElementById("paymentsGrid"),
+        ordersGrid: document.getElementById("ordersGrid"),
+      orderChatSidebar: document.getElementById("orderChatSidebar"),
+      orderChatTitle: document.getElementById("orderChatTitle"),
+      orderChatMeta: document.getElementById("orderChatMeta"),
+      orderChatStatus: document.getElementById("orderChatStatus"),
+      orderChatSummary: document.getElementById("orderChatSummary"),
+      orderChatMessages: document.getElementById("orderChatMessages"),
+      orderChatInput: document.getElementById("orderChatInput"),
+      orderChatSendButton: document.getElementById("orderChatSendButton"),
+      reviewsGrid: document.getElementById("reviewsGrid"),
+      faqGrid: document.getElementById("faqGrid"),
+      memberDisplayName: document.getElementById("memberDisplayName"),
+      memberIdentityText: document.getElementById("memberIdentityText"),
+      memberEmailStatus: document.getElementById("memberEmailStatus"),
+      memberPhoneStatus: document.getElementById("memberPhoneStatus"),
+      memberRole: document.getElementById("memberRole"),
+      memberOrdersCount: document.getElementById("memberOrdersCount"),
+      memberPendingCount: document.getElementById("memberPendingCount"),
+      registerUsername: document.getElementById("registerUsername"),
+      registerDisplayName: document.getElementById("registerDisplayName"),
+      registerEmail: document.getElementById("registerEmail"),
+      registerPhone: document.getElementById("registerPhone"),
+      registerPassword: document.getElementById("registerPassword"),
+      loginUsername: document.getElementById("loginUsername"),
+      loginPassword: document.getElementById("loginPassword"),
+      deliveryAccount: document.getElementById("deliveryAccount"),
+      contactField: document.getElementById("contactField"),
+      orderNote: document.getElementById("orderNote"),
+      googleRegisterButton: document.getElementById("googleRegisterButton"),
+      profileEmail: document.getElementById("profileEmail"),
+      profilePhone: document.getElementById("profilePhone"),
+      phoneVerifyCode: document.getElementById("phoneVerifyCode"),
+      phoneVerifyHint: document.getElementById("phoneVerifyHint"),
+      saveProfileButton: document.getElementById("saveProfileButton"),
+      googleVerifyButton: document.getElementById("googleVerifyButton"),
+      sendPhoneCodeButton: document.getElementById("sendPhoneCodeButton"),
+      confirmPhoneCodeButton: document.getElementById("confirmPhoneCodeButton")
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function storeToken(token) {
+      localStorage.setItem("dc_storefront_token", token);
+    }
+
+    function readToken() {
+      return (localStorage.getItem("dc_storefront_token") || "").trim();
+    }
+
+    function saveCart() {
+      localStorage.setItem("dc_storefront_cart", JSON.stringify(publicState.cart));
+    }
+
+    function loadCart() {
+      try {
+        publicState.cart = JSON.parse(localStorage.getItem("dc_storefront_cart") || "[]");
+      } catch {
+        publicState.cart = [];
+      }
+    }
+
+    async function apiRequest(path, options = {}, withAuth = false) {
+      const response = await fetch(`${apiBase}${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(withAuth && readToken() ? { "x-storefront-token": readToken() } : {}),
+          ...(options.headers || {})
+        }
+      });
+
+      if (!response.ok) {
+        let text = "";
+        try {
+          const json = await response.json();
+          text = json.message || JSON.stringify(json);
+        } catch {
+          text = await response.text();
+        }
+        throw new Error(text || "發生未知錯誤");
+      }
+
+      return response.json();
+    }
+
+    function setStatus(target, message, tone = "") {
+      target.className = `status${tone ? ` ${tone}` : ""}`;
+      target.textContent = message;
+    }
+
+    function jumpTo(selector) {
+      const element = document.querySelector(selector);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    function formatPrice(value) {
+      return `${Number(value || 0).toLocaleString("zh-TW")} NT`;
+    }
+
+    const storefrontServiceBuckets = [
+      {
+        label: "網站託管",
+        keywords: ["網站託管", "網站代管", "網站維護", "網站架設", "網站部署", "主機託管", "hosting", "host"]
+      },
+      {
+        label: "機器人代做",
+        keywords: ["機器人代做", "機器人客製", "機器人開發", "discord機器人", "discord bot", "bot代做", "代做機器人"]
+      }
+    ];
+
+    function rawProducts() {
+      return publicState.data?.products || [];
+    }
+
+    function detectServiceBucket(item) {
+      const haystack = `${item?.name || ""} ${item?.category || ""} ${item?.description || ""}`.toLowerCase();
+      const matched = storefrontServiceBuckets.find((bucket) =>
+        bucket.keywords.some((keyword) => haystack.includes(keyword.toLowerCase()))
+      );
+      return matched?.label || "";
+    }
+
+    function currentProducts() {
+      return rawProducts()
+        .map((item) => {
+          const bucket = detectServiceBucket(item);
+          return bucket ? { ...item, category: bucket } : null;
+        })
+        .filter(Boolean);
+    }
+
+    function filteredProducts() {
+      const filtered = currentProducts().filter((item) => {
+        const matchCategory = publicState.filterCategory === "全部" || (item.category || "未分類") === publicState.filterCategory;
+        const keyword = publicState.searchKeyword.trim().toLowerCase();
+        const haystack = `${item.name || ""} ${item.category || ""} ${item.description || ""}`.toLowerCase();
+        const matchKeyword = !keyword || haystack.includes(keyword);
+        return matchCategory && matchKeyword;
+      });
+      const sorted = [...filtered];
+      const priceNumber = (item) => Number(String(item.priceLabel || 0).replace(/[^\d.]/g, "")) || 0;
+      if (publicState.sortMode === "price-asc") {
+        sorted.sort((a, b) => priceNumber(a) - priceNumber(b));
+      } else if (publicState.sortMode === "price-desc") {
+        sorted.sort((a, b) => priceNumber(b) - priceNumber(a));
+      } else if (publicState.sortMode === "latest") {
+        sorted.reverse();
+      } else {
+        sorted.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+      }
+      return sorted;
+    }
+
+    function currentPaymentMethods() {
+      return (publicState.data?.storefront?.paymentMethods || []).filter((item) => item.enabled);
+    }
+
+    function productById(productId) {
+      return rawProducts().find((item) => item.id === productId) || currentProducts().find((item) => item.id === productId);
+    }
+
+    function renderProductFilters() {
+      const categories = ["全部", ...new Set(currentProducts().map((item) => (item.category || "未分類").trim() || "未分類"))];
+      els.productCategoryBar.innerHTML = categories.map((category) => `
+        <button type="button" class="category-pill ${publicState.filterCategory === category ? "is-active" : ""}" data-category-pill="${escapeHtml(category)}">
+          ${escapeHtml(category)}
+        </button>
+      `).join("");
+
+      els.productCategoryBar.querySelectorAll("[data-category-pill]").forEach((button) => {
+        button.addEventListener("click", () => {
+          publicState.filterCategory = button.getAttribute("data-category-pill") || "全部";
+          renderProductFilters();
+          renderProducts();
+        });
+      });
+    }
+
+    function renderMarketplaceMeta() {
+      const products = currentProducts();
+      const payments = currentPaymentMethods();
+      const featured = products.filter((item) => item.featured).length;
+      if (els.marketNoticeText) {
+        els.marketNoticeText.textContent = products.length
+          ? `目前上架 ${products.length} 項網站託管 / 機器人代做服務，精選 ${featured} 項，付款方式 ${payments.length} 種，結帳後可直接在網站追單。`
+          : "目前尚未同步可展示的網站託管或機器人代做方案，完成後台上架後會自動顯示在這裡。";
+      }
+      if (els.marketNoticeOrders) els.marketNoticeOrders.textContent = `${products.length} 項商品`;
+      if (els.marketNoticePayments) els.marketNoticePayments.textContent = `${payments.length} 種付款`;
+      if (els.marketMetricProducts) els.marketMetricProducts.textContent = `${products.length}`;
+      if (els.marketMetricFeatured) els.marketMetricFeatured.textContent = `${featured}`;
+      if (els.marketMetricPayments) els.marketMetricPayments.textContent = `${payments.length}`;
+    }
+
+    function renderCategoryShowcase() {
+      if (!els.marketCategoryGrid) return;
+      const categories = [...new Set(currentProducts().map((item) => (item.category || "未分類").trim() || "未分類"))];
+      if (!categories.length) {
+        els.marketCategoryGrid.innerHTML = '<div class="empty-note">目前還沒有可展示的網站託管或機器人代做分類。</div>';
+        return;
+      }
+      els.marketCategoryGrid.innerHTML = categories.map((category) => {
+        const count = currentProducts().filter((item) => ((item.category || "未分類").trim() || "未分類") === category).length;
+        return `
+          <button type="button" class="market-category-card" data-market-category="${escapeHtml(category)}">
+            <strong>${escapeHtml(category)}</strong>
+            <span>${count} 項商品</span>
+            <small>點擊直接篩選這個分類</small>
+          </button>
+        `;
+      }).join("");
+      els.marketCategoryGrid.querySelectorAll("[data-market-category]").forEach((button) => {
+        button.addEventListener("click", () => {
+          publicState.filterCategory = button.getAttribute("data-market-category") || "全部";
+          renderProductFilters();
+          renderProducts();
+          jumpTo("#products");
+        });
+      });
+    }
+
+    function renderPromoCarousel() {
+      const cards = [...document.querySelectorAll("[data-promo-card]")];
+      if (!cards.length || !els.promoDots) return;
+      els.promoDots.innerHTML = cards.map((_, index) => `<span class="promo-dot ${index === 0 ? "is-active" : ""}" data-promo-dot="${index}"></span>`).join("");
+      publicState.promoIndex = typeof publicState.promoIndex === "number" ? publicState.promoIndex : 0;
+      const dots = [...els.promoDots.querySelectorAll("[data-promo-dot]")];
+      const applyState = () => {
+        cards.forEach((card, index) => card.classList.toggle("is-active", index === publicState.promoIndex));
+        dots.forEach((dot, index) => dot.classList.toggle("is-active", index === publicState.promoIndex));
+      };
+      const movePromo = (delta) => {
+        publicState.promoIndex = (publicState.promoIndex + delta + cards.length) % cards.length;
+        applyState();
+      };
+      applyState();
+      dots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          publicState.promoIndex = Number(dot.getAttribute("data-promo-dot") || 0);
+          applyState();
+        });
+      });
+      els.promoPrevButton?.addEventListener("click", () => movePromo(-1));
+      els.promoNextButton?.addEventListener("click", () => movePromo(1));
+      if (window.__promoTimer) {
+        window.clearInterval(window.__promoTimer);
+      }
+      window.__promoTimer = window.setInterval(() => {
+        movePromo(1);
+      }, 3200);
+    }
+
+    function splitGallery(value) {
+      return String(value || "")
+        .split(/[\n,]/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    function cartTotal() {
+      return publicState.cart.reduce((sum, item) => {
+        const product = productById(item.productId);
+        const numeric = Number(String(product?.priceLabel || 0).replace(/[^\d.]/g, "")) || 0;
+        return sum + numeric * item.quantity;
+      }, 0);
+    }
+
+    function renderHeader() {
+      els.accountStatus.textContent = publicState.account ? `${publicState.account.displayName} 已登入` : "未登入";
+      els.cartStatus.textContent = `購物車 ${publicState.cart.reduce((sum, item) => sum + item.quantity, 0)} 件`;
+    }
+
+    function renderMemberCenter() {
+      if (!publicState.account) {
+        els.memberDisplayName.textContent = "尚未登入";
+        els.memberIdentityText.textContent = "登入後會在這裡顯示你的會員名稱、帳號和 Email。";
+        els.memberEmailStatus.textContent = "Gmail 未驗證";
+        els.memberPhoneStatus.textContent = "電話未驗證";
+        els.memberRole.textContent = "顧客";
+        els.memberOrdersCount.textContent = "0";
+        els.memberPendingCount.textContent = "0";
+        els.profileEmail.value = "";
+        els.profilePhone.value = "";
+        els.phoneVerifyCode.value = "";
+        return;
+      }
+
+      const pendingStatuses = ["pending_payment", "payment_code_ready", "paid", "processing"];
+      els.memberDisplayName.textContent = publicState.account.displayName;
+      els.memberIdentityText.textContent = `${publicState.account.username} ｜ ${publicState.account.email || "未提供 Email"} ｜ ${publicState.account.phone || "未提供電話"}`;
+      els.memberEmailStatus.textContent = publicState.account.emailVerified ? "Gmail 已驗證" : "Gmail 未驗證";
+      els.memberPhoneStatus.textContent = publicState.account.phoneVerified ? "電話已驗證" : "電話未驗證";
+      els.memberRole.textContent = "顧客帳號";
+      els.memberOrdersCount.textContent = String(publicState.orders.length);
+      els.memberPendingCount.textContent = String(publicState.orders.filter((item) => pendingStatuses.includes(item.status)).length);
+      els.profileEmail.value = publicState.account.email || "";
+      els.profilePhone.value = publicState.account.phone || "";
+    }
+
+    function renderHero() {
+      const brand = publicState.data?.brand;
+      const storefront = publicState.data?.storefront;
+      if (!brand || !storefront) return;
+      els.navBrandText.textContent = brand.serverName;
+      els.heroTitle.textContent = storefront.heroTitle || brand.serverName;
+      els.heroDescription.textContent = storefront.heroDescription || "本網站提供網站託管與 Discord 機器人代做服務展示、價格資訊、付款方式說明、購物車下單與站內客服處理，作為實際對外交易與顧客使用的商城前台。";
+      els.storeStatusTitle.textContent = storefront.enabled ? "商城開放中" : "商城暫時維護";
+      els.storeStatusText.textContent = storefront.enabled
+        ? "顧客可於本站查看網站託管與機器人代做方案、加入購物車、送出訂單並追蹤付款與客服處理進度。"
+        : "目前前台被後台暫時關閉，你之後可再重新開放。";
+      els.googleStatusText.textContent = storefront.googleLoginConfigured ? "可用" : "待接 OAuth";
+      els.googleRegisterButton.disabled = !storefront.supportGoogleLogin || !storefront.googleLoginConfigured;
+      els.registerHint.textContent = storefront.googleLoginConfigured
+        ? "顧客可使用 Google 入口或一般帳號登入本站下單。"
+        : "顧客可先使用一般帳號登入；若之後有需要，再開啟 Google OAuth。";
+      if (window.location.hash === "#google-login-success") {
+        setStatus(els.authStatus, "Google 登入成功，會員中心已恢復。", "success");
+        history.replaceState(null, "", "/shop");
+      }
+        if (window.location.hash === "#google-verify-success") {
+          setStatus(els.authStatus, "Gmail 驗證成功，會員資料已更新。", "success");
+          history.replaceState(null, "", "/shop");
+        }
+      renderMarketplaceMeta();
+    }
+
+    function renderProducts() {
+      const products = filteredProducts();
+      if (els.productResultsLabel) {
+        els.productResultsLabel.textContent = `${products.length} 項商品`;
+      }
+      if (!products.length) {
+        els.productsGrid.innerHTML = '<div class="empty-note">目前只展示網站託管與機器人代做服務；這個分類暫時沒有符合的方案。</div>';
+        return;
+      }
+
+      els.productsGrid.innerHTML = products.map((product) => `
+        <article class="product-card card">
+          <div class="product-banner" style="${splitGallery(product.imageUrl)[0] ? `background: linear-gradient(180deg, rgba(7, 16, 28, 0.08), rgba(7, 16, 28, 0.22)), url('${escapeHtml(splitGallery(product.imageUrl)[0])}') center center / cover no-repeat;` : ""}">
+            <div class="product-tag-stack">
+              <span class="badge">${escapeHtml(product.category || "商城商品")}</span>
+              ${product.featured ? '<span class="badge">精選商品</span>' : ""}
+            </div>
+            <div class="sale-ribbon">${product.featured ? "限時精選" : "新品推薦"}</div>
+          </div>
+          ${splitGallery(product.imageUrl).length > 1 ? `
+            <div class="product-gallery-row">
+              ${splitGallery(product.imageUrl).slice(0, 4).map((image, imageIndex) => `<img src="${escapeHtml(image)}" alt="${escapeHtml(product.name)}-${imageIndex + 1}" />`).join("")}
+            </div>
+          ` : ""}
+          <div class="product-card-top">
+            <div>
+              <strong>${escapeHtml(product.name)}</strong>
+              <p class="product-stock-note">後台同步上架服務方案</p>
+            </div>
+            <div class="product-tag-stack">
+              <div class="product-category-chip">🛒 ${escapeHtml(product.category || "商城商品")}</div>
+              ${product.featured ? '<div class="product-category-chip">🔥 熱門</div>' : '<div class="product-category-chip">✨ 新上架</div>'}
+            </div>
+          </div>
+          <div>
+            <div class="price">${escapeHtml(product.priceLabel)} NT</div>
+            <div class="product-sales-line">
+              <span>${product.featured ? "月熱度高" : "新上架商品"}</span>
+              <span>${product.featured ? "商城精選推薦" : "近期補貨完成"}</span>
+            </div>
+            <p>${escapeHtml(product.description || "這個服務方案已由後台上架，顧客可以直接加入購物車並走會員下單流程。")}</p>
+          </div>
+          <div class="product-card-footer">
+            <p class="product-stock-note">${product.featured ? "支援購物車下單、站內客服、後台追單" : "可直接加入購物車，網站內完成訂單追蹤"}</p>
+            <button class="button" type="button" data-add-cart="${escapeHtml(product.id)}">加入購物車</button>
+          </div>
+        </article>
+      `).join("");
+
+      els.productsGrid.querySelectorAll("[data-add-cart]").forEach((button) => {
+        button.addEventListener("click", () => {
+          addToCart(button.getAttribute("data-add-cart"));
+        });
+      });
+    }
+
+    function renderCompactShelf(target, products) {
+      if (!target) return;
+      if (!products.length) {
+        target.innerHTML = '<div class="empty-note">目前沒有可展示的商品。</div>';
+        return;
+      }
+      target.innerHTML = products.map((product) => {
+        const cover = splitGallery(product.imageUrl)[0];
+        return `
+          <div class="compact-product-card">
+            <div class="compact-product-cover">${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(product.name)}" />` : escapeHtml((product.name || "P").slice(0, 1))}</div>
+            <div class="compact-product-meta">
+              <strong>${escapeHtml(product.name)}</strong>
+              <small>${escapeHtml(product.category || "服務方案")} ｜ ${escapeHtml(product.priceLabel)} NT ｜ ${product.featured ? "熱銷中" : "新上架"}</small>
+            </div>
+            <button class="button compact-product-action" type="button" data-add-cart="${escapeHtml(product.id)}">加入</button>
+          </div>
+        `;
+      }).join("");
+      target.querySelectorAll("[data-add-cart]").forEach((button) => {
+        button.addEventListener("click", () => addToCart(button.getAttribute("data-add-cart")));
+      });
+    }
+
+    function renderMarketplaceShelves() {
+      const products = currentProducts();
+      const hot = [...products].slice(0, 4);
+      const featured = products.filter((item) => item.featured).slice(0, 4);
+      const latest = [...products].slice(-4).reverse();
+      renderCompactShelf(els.hotProductsGrid, hot);
+      renderCompactShelf(els.featuredProductsGrid, featured.length ? featured : hot);
+      renderCompactShelf(els.latestProductsGrid, latest.length ? latest : hot);
+    }
+
+    function renderCart() {
+      if (!publicState.cart.length) {
+        els.cartList.innerHTML = '<div class="empty-note">目前購物車是空的，先去上面挑網站託管或機器人代做方案吧。</div>';
+        els.cartTotal.textContent = formatPrice(0);
+        els.checkoutSubtotal.textContent = formatPrice(0);
+        els.checkoutGrandTotal.textContent = formatPrice(0);
+        renderHeader();
+        return;
+      }
+
+      els.cartList.innerHTML = publicState.cart.map((entry) => {
+        const product = productById(entry.productId);
+        if (!product) return "";
+        const unitPrice = Number(String(product.priceLabel || 0).replace(/[^\d.]/g, "")) || 0;
+        const subtotal = unitPrice * entry.quantity;
+        return `
+          <div class="cart-line">
+            <div class="cart-line-shell">
+              <div class="cart-line-cover">${product.imageUrl ? `<img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" />` : `<span>${escapeHtml((product.name || "P").slice(0, 1))}</span>`}</div>
+              <div class="cart-line-main">
+                <div class="cart-line-head">
+                  <strong>${escapeHtml(product.name)}</strong>
+                  <span>${escapeHtml(product.category || "商城商品")}</span>
+                </div>
+                <p>${escapeHtml(product.description || "這筆商品會跟著購物車一起送出訂單。")}</p>
+              </div>
+            </div>
+            <div class="cart-line-actions">
+              <span>${escapeHtml(product.priceLabel)} x ${entry.quantity} = ${formatPrice(subtotal)}</span>
+              <div class="inline-actions">
+                <div class="qty-stepper">
+                  <button class="button-alt mini-button" type="button" data-qty-minus="${escapeHtml(entry.productId)}">-</button>
+                  <span class="qty-stepper-value">${entry.quantity}</span>
+                  <button class="button-alt mini-button" type="button" data-qty-plus="${escapeHtml(entry.productId)}">+</button>
+                </div>
+                <button class="button-soft mini-button" type="button" data-remove-cart="${escapeHtml(entry.productId)}">移除</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      els.cartTotal.textContent = formatPrice(cartTotal());
+      els.checkoutSubtotal.textContent = formatPrice(cartTotal());
+      els.checkoutGrandTotal.textContent = formatPrice(cartTotal());
+      renderHeader();
+
+      els.cartList.querySelectorAll("[data-qty-plus]").forEach((button) => {
+        button.addEventListener("click", () => changeCartQuantity(button.getAttribute("data-qty-plus"), 1));
+      });
+      els.cartList.querySelectorAll("[data-qty-minus]").forEach((button) => {
+        button.addEventListener("click", () => changeCartQuantity(button.getAttribute("data-qty-minus"), -1));
+      });
+      els.cartList.querySelectorAll("[data-remove-cart]").forEach((button) => {
+        button.addEventListener("click", () => removeFromCart(button.getAttribute("data-remove-cart")));
+      });
+    }
+
+    function renderPayments() {
+      const methods = currentPaymentMethods();
+      els.paymentMethodSelect.innerHTML = methods.length
+        ? methods.map((method) => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.label)}</option>`).join("")
+        : '<option value="">目前沒有可用付款方式</option>';
+
+      if (!methods.length) {
+        els.paymentsGrid.innerHTML = '<div class="empty-note">目前後台沒有開放任何付款方式。</div>';
+        setStatus(els.paymentInstruction, "目前沒有可用付款方式，請先回後台設定。", "warn");
+        return;
+      }
+
+      els.paymentsGrid.innerHTML = methods.map((method) => `
+        <article class="payment-card card">
+          <span class="eyebrow">Payment Option</span>
+          <strong>${escapeHtml(method.label)}</strong>
+          <p>${escapeHtml(method.instructions)}</p>
+          ${method.accountInfo ? `<p><strong>繳費帳戶：</strong>${escapeHtml(method.accountInfo)}</p>` : ""}
+        </article>
+      `).join("");
+
+      syncPaymentInstruction();
+    }
+
+    function renderOrders() {
+      if (!publicState.account) {
+        els.ordersGrid.innerHTML = '<div class="empty-note">請先登入顧客帳號，這裡才會顯示你的訂單。</div>';
+        renderMemberCenter();
+        renderOrderChatCenter();
+        return;
+      }
+
+      if (!publicState.orders.length) {
+        els.ordersGrid.innerHTML = '<div class="empty-note">你目前還沒有送出任何訂單。</div>';
+        renderMemberCenter();
+        renderOrderChatCenter();
+        return;
+      }
+
+      const statusLabel = {
+        pending_payment: "待付款",
+        payment_code_ready: "付款代碼已建立",
+        paid: "已付款",
+        processing: "處理中",
+        completed: "已完成",
+        cancelled: "已取消"
+      };
+
+      els.ordersGrid.innerHTML = publicState.orders.map((order) => `
+        <article class="order-card card">
+          <div class="status-row">
+            <strong>訂單 ${escapeHtml(order.id)}</strong>
+            <span class="badge">${statusLabel[order.status] || order.status}</span>
+          </div>
+          <p>${order.items.map((item) => `${escapeHtml(item.name)} x${item.quantity}`).join("、")}</p>
+          <div class="order-meta">
+            <small>${escapeHtml(order.paymentMethodLabel)} ｜ ${formatPrice(order.totalAmount)}</small>
+            <small>${new Date(order.createdAt).toLocaleString("zh-TW")}</small>
+          </div>
+          ${order.opayPaymentCode ? `<p>超商代碼：${escapeHtml(order.opayPaymentCode)}${order.opayExpireAt ? ` ｜ 到期：${escapeHtml(order.opayExpireAt)}` : ""}</p>` : ""}
+          <div class="inline-actions">
+            <button class="button-alt" type="button" data-open-order-chat="${escapeHtml(order.id)}">前往訂單客服</button>
+            ${order.status === "pending_payment" && order.paymentMethodId === "payment-cvs-direct"
+              ? `<button class="button" type="button" data-direct-order="${escapeHtml(order.id)}">直接生成付款代碼</button>`
+              : ""}
+            ${order.status === "pending_payment" && (order.paymentMethodId === "payment-cvs" || order.paymentMethodLabel.includes("歐付寶"))
+              ? `<button class="button" type="button" data-opay-order="${escapeHtml(order.id)}">前往歐付寶付款</button>`
+              : ""}
+            ${order.status === "payment_code_ready" ? `<button class="button-alt" type="button" data-copy-code="${escapeHtml(order.opayPaymentCode || "")}">複製付款代碼</button>` : ""}
+          </div>
+        </article>
+      `).join("");
+      renderMemberCenter();
+
+      els.ordersGrid.querySelectorAll("[data-opay-order]").forEach((button) => {
+        button.addEventListener("click", () => startOpayCheckout(button.getAttribute("data-opay-order")));
+      });
+      els.ordersGrid.querySelectorAll("[data-direct-order]").forEach((button) => {
+        button.addEventListener("click", () => startDirectCodeCheckout(button.getAttribute("data-direct-order")));
+      });
+      els.ordersGrid.querySelectorAll("[data-copy-code]").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const code = button.getAttribute("data-copy-code") || "";
+          if (!code) return;
+          await navigator.clipboard.writeText(code).catch(() => null);
+          setStatus(els.authStatus, "付款代碼已複製。", "success");
+        });
+      });
+      els.ordersGrid.querySelectorAll("[data-open-order-chat]").forEach((button) => {
+        button.addEventListener("click", () => {
+          publicState.selectedOrderId = button.getAttribute("data-open-order-chat") || "";
+          renderOrderChatCenter();
+          jumpTo("#order-chat");
+        });
+      });
+      renderOrderChatCenter();
+    }
+
+    function renderOrderChatCenter() {
+      if (!publicState.account) {
+        els.orderChatSidebar.innerHTML = '<div class="empty-note">請先登入後查看訂單客服。</div>';
+        els.orderChatTitle.textContent = "請先登入商城帳號";
+        els.orderChatMeta.textContent = "登入後可查看每筆訂單的站內客服對話。";
+        els.orderChatStatus.textContent = "未登入";
+        els.orderChatMessages.innerHTML = '<div class="empty-note">目前沒有可顯示的聊天內容。</div>';
+        els.orderChatInput.value = "";
+        els.orderChatSendButton.disabled = true;
+        return;
+      }
+
+      if (!publicState.orders.length) {
+        els.orderChatSidebar.innerHTML = '<div class="empty-note">目前沒有任何訂單。</div>';
+        els.orderChatTitle.textContent = "尚未建立訂單";
+        els.orderChatMeta.textContent = "購物下單後，客服對話會集中顯示在這裡。";
+        els.orderChatStatus.textContent = "無訂單";
+        els.orderChatMessages.innerHTML = '<div class="empty-note">目前沒有可顯示的聊天內容。</div>';
+        els.orderChatInput.value = "";
+        els.orderChatSendButton.disabled = true;
+        return;
+      }
+
+      if (!publicState.selectedOrderId || !publicState.orders.some((item) => item.id === publicState.selectedOrderId)) {
+        publicState.selectedOrderId = publicState.orders[0].id;
+      }
+
+      const activeOrder = publicState.orders.find((item) => item.id === publicState.selectedOrderId) || publicState.orders[0];
+      const statusLabel = {
+        pending_payment: "待付款",
+        payment_code_ready: "付款代碼已建立",
+        paid: "已付款",
+        processing: "處理中",
+        completed: "已完成",
+        cancelled: "已取消"
+      };
+      const orderTone = (status) => {
+        if (status === "completed") return "is-success";
+        if (status === "processing" || status === "paid") return "is-info";
+        if (status === "cancelled") return "is-muted";
+        return "is-warn";
+      };
+      const getMessageHint = (order) => {
+        const latest = (order.messages || [])[order.messages.length - 1];
+        if (!latest) return "尚未開始對話";
+        if (latest.senderType === "staff") return "客服新回覆";
+        if (latest.senderType === "customer") return "等待客服";
+        return "系統通知";
+      };
+
+      els.orderChatSidebar.innerHTML = publicState.orders.map((order) => `
+        <button type="button" class="order-chat-nav-item ${order.id === activeOrder.id ? "is-active" : ""} ${orderTone(order.status)}" data-chat-order="${escapeHtml(order.id)}">
+          <div class="order-chat-nav-top">
+            <strong>${escapeHtml(order.id)}</strong>
+            <span class="order-chat-nav-badge">${escapeHtml(getMessageHint(order))}</span>
+          </div>
+          <span>${escapeHtml(order.items.map((item) => `${item.name} x${item.quantity}`).join("、"))}</span>
+          <small>${statusLabel[order.status] || order.status} ｜ ${formatPrice(order.totalAmount)}</small>
+        </button>
+      `).join("");
+
+      els.orderChatTitle.textContent = `訂單 ${activeOrder.id}`;
+      els.orderChatMeta.textContent = `${activeOrder.items.map((item) => `${item.name} x${item.quantity}`).join("、")} ｜ ${activeOrder.paymentMethodLabel}`;
+      els.orderChatStatus.textContent = statusLabel[activeOrder.status] || activeOrder.status;
+      els.orderChatStatus.className = `badge ${orderTone(activeOrder.status)}`;
+      const latestMessage = (activeOrder.messages || [])[activeOrder.messages.length - 1];
+      els.orderChatSummary.innerHTML = `
+        <div class="order-chat-summary-head ${orderTone(activeOrder.status)}">
+          <div>
+            <p class="eyebrow">Order Snapshot</p>
+            <strong>${escapeHtml(activeOrder.id)}</strong>
+          </div>
+          <span class="badge ${orderTone(activeOrder.status)}">${escapeHtml(statusLabel[activeOrder.status] || activeOrder.status)}</span>
+        </div>
+        <div class="order-chat-summary-grid">
+          <div><span>訂單金額</span><strong>${formatPrice(activeOrder.totalAmount)}</strong></div>
+          <div><span>付款方式</span><strong>${escapeHtml(activeOrder.paymentMethodLabel)}</strong></div>
+          <div><span>最後更新</span><strong>${latestMessage ? new Date(latestMessage.createdAt).toLocaleString("zh-TW") : new Date(activeOrder.updatedAt || activeOrder.createdAt).toLocaleString("zh-TW")}</strong></div>
+          <div><span>目前提醒</span><strong>${escapeHtml(getMessageHint(activeOrder))}</strong></div>
+        </div>
+      `;
+      els.orderChatMessages.innerHTML = (activeOrder.messages || []).length
+        ? activeOrder.messages.map((message) => `
+          <div class="chat-bubble ${message.senderType === "customer" ? "from-customer" : message.senderType === "staff" ? "from-staff" : "from-system"}">
+            <div class="chat-bubble-meta">
+              <strong>${escapeHtml(message.senderName)}</strong>
+              <small>${message.senderType === "staff" ? "客服" : message.senderType === "customer" ? "你" : "系統"} ｜ ${new Date(message.createdAt).toLocaleString("zh-TW")}</small>
+            </div>
+            <p>${escapeHtml(message.message)}</p>
+          </div>
+        `).join("")
+        : '<div class="empty-note">這筆訂單目前還沒有任何客服對話。</div>';
+      els.orderChatInput.value = "";
+      els.orderChatSendButton.disabled = false;
+
+      els.orderChatSidebar.querySelectorAll("[data-chat-order]").forEach((button) => {
+        button.addEventListener("click", () => {
+          publicState.selectedOrderId = button.getAttribute("data-chat-order") || "";
+          renderOrderChatCenter();
+        });
+      });
+    }
+
+    async function sendOrderChatMessage() {
+      const orderId = publicState.selectedOrderId;
+      const message = els.orderChatInput.value.trim();
+      if (!orderId) {
+        setStatus(els.authStatus, "請先選擇一筆訂單。", "warn");
+        return;
+      }
+      if (!message) {
+        setStatus(els.authStatus, "請先輸入你要傳給客服的內容。", "warn");
+        return;
+      }
+      try {
+        const nextOrder = await apiRequest(`/orders/${orderId}/messages`, {
+          method: "POST",
+          body: JSON.stringify({ message })
+        }, true);
+        publicState.orders = (publicState.orders || []).map((item) => item.id === nextOrder.id ? nextOrder : item);
+        setStatus(els.authStatus, "訊息已送出，客服會直接在網站訂單客服中心回覆你。", "success");
+        renderOrders();
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "送出訊息失敗", "error");
+      }
+    }
+
+    function renderReviews() {
+      const reviews = publicState.data?.reviews || [];
+      if (!reviews.length) {
+        els.reviewsGrid.innerHTML = '<div class="empty-note">目前還沒有可展示的評價。</div>';
+        return;
+      }
+
+      els.reviewsGrid.innerHTML = reviews.map((review) => `
+        <article class="review-card card">
+          <p>${escapeHtml(review.content)}</p>
+          <div class="review-user">
+            <div class="review-avatar">${escapeHtml((review.username || "U").slice(0, 1).toUpperCase())}</div>
+            <div>
+              <strong>${escapeHtml(review.username)}</strong>
+              <span>${escapeHtml(String(review.stars))} / 5 評價</span>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderFaq() {
+      const faq = publicState.data?.faq || [];
+      if (!faq.length) {
+        els.faqGrid.innerHTML = '<div class="empty-note">目前後台還沒有 FAQ。</div>';
+        return;
+      }
+
+      els.faqGrid.innerHTML = faq.map((item) => `
+        <article class="faq-card card">
+          <strong>${escapeHtml(item.question)}</strong>
+          <p>${escapeHtml(item.answer)}</p>
+        </article>
+      `).join("");
+    }
+
+    function syncPaymentInstruction() {
+      const selectedId = els.paymentMethodSelect.value;
+      const method = currentPaymentMethods().find((item) => item.id === selectedId);
+      if (!method) {
+        els.checkoutMethodLabel.textContent = "未選擇";
+        setStatus(els.paymentInstruction, "請先在後台啟用至少一個付款方式。", "warn");
+        return;
+      }
+      els.checkoutMethodLabel.textContent = method.label;
+      setStatus(
+        els.paymentInstruction,
+        method.accountInfo
+          ? `${method.instructions}\n\n繳費帳戶：${method.accountInfo}`
+          : method.instructions,
+        ""
+      );
+    }
+
+    function addToCart(productId) {
+      const current = publicState.cart.find((item) => item.productId === productId);
+      if (current) {
+        current.quantity += 1;
+      } else {
+        publicState.cart.push({ productId, quantity: 1 });
+      }
+      saveCart();
+      renderCart();
+      setStatus(els.authStatus, "商品已加入購物車，可以繼續挑商品或直接去送出訂單。", "success");
+    }
+
+    function changeCartQuantity(productId, delta) {
+      publicState.cart = publicState.cart
+        .map((item) => item.productId === productId ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item)
+        .filter((item) => item.quantity > 0);
+      saveCart();
+      renderCart();
+    }
+
+    function removeFromCart(productId) {
+      publicState.cart = publicState.cart.filter((item) => item.productId !== productId);
+      saveCart();
+      renderCart();
+    }
+
+    async function loadPublic() {
+      publicState.data = await apiRequest("/public");
+      if (els.reviewSiteUrl) {
+        els.reviewSiteUrl.textContent = window.location.href;
+      }
+      renderHero();
+      renderMarketplaceMeta();
+      renderCategoryShowcase();
+      renderProductFilters();
+      renderProducts();
+      renderMarketplaceShelves();
+      renderPromoCarousel();
+      renderPayments();
+      renderReviews();
+      renderFaq();
+      renderCart();
+    }
+
+    async function restoreSession() {
+      if (!readToken()) {
+        renderOrders();
+        return;
+      }
+      try {
+        const result = await apiRequest("/session", {}, true);
+        publicState.account = result.account;
+        renderHeader();
+        setStatus(els.authStatus, `目前已登入為 ${result.account.displayName}，可以直接送出購物車訂單。`, "success");
+        await loadOrders();
+      } catch {
+        localStorage.removeItem("dc_storefront_token");
+        publicState.account = null;
+        renderHeader();
+        renderOrders();
+      }
+    }
+
+    async function loadOrders() {
+      if (!publicState.account) {
+        renderOrders();
+        return;
+      }
+      publicState.orders = await apiRequest("/orders", {}, true);
+      renderOrders();
+    }
+
+    async function handleRegister() {
+      try {
+        const payload = {
+          provider: "local",
+          username: els.registerUsername.value.trim(),
+          displayName: els.registerDisplayName.value.trim(),
+          email: els.registerEmail.value.trim(),
+          phone: els.registerPhone.value.trim(),
+          password: els.registerPassword.value
+        };
+        const result = await apiRequest("/register", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        storeToken(result.token);
+        publicState.account = result.account;
+        renderHeader();
+        setStatus(els.authStatus, `註冊成功，歡迎 ${result.account.displayName}。你現在可以直接送出購物車訂單。`, "success");
+        await loadOrders();
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "註冊失敗", "error");
+      }
+    }
+
+    async function saveProfile() {
+      if (!publicState.account) {
+        setStatus(els.authStatus, "請先登入商城帳號，再更新會員資料。", "warn");
+        throw new Error("請先登入商城帳號");
+      }
+
+      try {
+        const result = await apiRequest("/profile", {
+          method: "POST",
+          body: JSON.stringify({
+            email: els.profileEmail.value.trim(),
+            phone: els.profilePhone.value.trim()
+          })
+        }, true);
+        publicState.account = result.account;
+        renderHeader();
+        renderMemberCenter();
+        setStatus(els.authStatus, result.message || "會員資料已更新。", "success");
+        return result;
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "會員資料更新失敗", "error");
+        throw error;
+      }
+    }
+
+    async function handleLogin() {
+      try {
+        const result = await apiRequest("/login", {
+          method: "POST",
+          body: JSON.stringify({
+            username: els.loginUsername.value.trim(),
+            password: els.loginPassword.value
+          })
+        });
+        storeToken(result.token);
+        publicState.account = result.account;
+        renderHeader();
+        setStatus(els.authStatus, `登入成功，歡迎回來 ${result.account.displayName}。`, "success");
+        await loadOrders();
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "登入失敗", "error");
+      }
+    }
+
+    async function handleLogout() {
+      try {
+        await apiRequest("/logout", { method: "POST" }, true);
+      } catch {
+        // Ignore logout failure and clear locally.
+      }
+      localStorage.removeItem("dc_storefront_token");
+      publicState.account = null;
+      publicState.orders = [];
+      renderHeader();
+      renderOrders();
+      setStatus(els.authStatus, "你已經登出商城帳號。", "warn");
+    }
+
+    async function startGoogleLogin() {
+      try {
+        const result = await apiRequest("/google/start");
+        window.location.href = result.url;
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "Google 登入啟動失敗", "error");
+      }
+    }
+
+    async function startGoogleVerify() {
+      if (!publicState.account) {
+        setStatus(els.authStatus, "請先登入商城帳號，再做 Gmail 驗證。", "warn");
+        return;
+      }
+
+      try {
+        await saveProfile();
+        const result = await apiRequest("/google/verify/start", {}, true);
+        window.location.href = result.url;
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "Gmail 驗證啟動失敗", "error");
+      }
+    }
+
+    async function sendPhoneCode() {
+      if (!publicState.account) {
+        setStatus(els.authStatus, "請先登入商城帳號，再發送手機驗證碼。", "warn");
+        return;
+      }
+
+      try {
+        if (els.profilePhone.value.trim() !== (publicState.account.phone || "")) {
+          await saveProfile();
+        }
+        const result = await apiRequest("/verify/phone/send", { method: "POST" }, true);
+        els.phoneVerifyHint.textContent = result.previewCode
+          ? `開發模式驗證碼：${result.previewCode}，10 分鐘內有效。`
+          : (result.message || "手機驗證碼已發送。");
+        setStatus(els.authStatus, result.message || "手機驗證碼已發送。", "success");
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "手機驗證碼發送失敗", "error");
+      }
+    }
+
+    async function confirmPhoneCode() {
+      if (!publicState.account) {
+        setStatus(els.authStatus, "請先登入商城帳號，再確認手機驗證。", "warn");
+        return;
+      }
+
+      try {
+        const result = await apiRequest("/verify/phone/confirm", {
+          method: "POST",
+          body: JSON.stringify({
+            code: els.phoneVerifyCode.value.trim()
+          })
+        }, true);
+        publicState.account = result.account;
+        renderHeader();
+        renderMemberCenter();
+        els.phoneVerifyHint.textContent = "電話驗證完成。";
+        setStatus(els.authStatus, result.message || "電話驗證成功。", "success");
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "電話驗證失敗", "error");
+      }
+    }
+
+    async function startOpayCheckout(orderId) {
+      try {
+        const checkout = await apiRequest(`/orders/${orderId}/opay-checkout`, { method: "POST" }, true);
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = checkout.action;
+        form.target = "_blank";
+        Object.entries(checkout.fields).forEach(([key, value]) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = value;
+          form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+        setStatus(els.authStatus, "已開啟歐付寶超商代碼付款頁。", "success");
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "歐付寶付款建立失敗", "error");
+      }
+    }
+
+    async function startDirectCodeCheckout(orderId) {
+      try {
+        const nextOrder = await apiRequest(`/orders/${orderId}/direct-code`, { method: "POST" }, true);
+        publicState.orders = (publicState.orders || []).map((item) => item.id === nextOrder.id ? nextOrder : item);
+        setStatus(els.authStatus, "PAYUNi 直出付款代碼已建立，請直接複製付款代碼前往超商繳費。", "success");
+        renderOrders();
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "直出付款代碼建立失敗", "error");
+      }
+    }
+
+    async function handleCheckout() {
+      if (!publicState.account) {
+        setStatus(els.authStatus, "請先註冊或登入顧客帳號，再送出購物車訂單。", "warn");
+        jumpTo("#auth");
+        return;
+      }
+
+      if (!publicState.cart.length) {
+        setStatus(els.authStatus, "購物車目前是空的，先加入商品再送單。", "warn");
+        jumpTo("#products");
+        return;
+      }
+
+      try {
+        await apiRequest("/orders", {
+          method: "POST",
+          body: JSON.stringify({
+            items: publicState.cart,
+            paymentMethodId: els.paymentMethodSelect.value,
+            deliveryAccount: els.deliveryAccount.value.trim(),
+            contact: els.contactField.value.trim(),
+            note: els.orderNote.value.trim()
+          })
+        }, true);
+        publicState.cart = [];
+        saveCart();
+        renderCart();
+        setStatus(els.authStatus, "訂單已送出，後台會看到你的開單購買資訊與付款方式。", "success");
+        els.orderNote.value = "";
+        await loadOrders();
+        jumpTo("#orders");
+      } catch (error) {
+        setStatus(els.authStatus, error.message || "送出訂單失敗", "error");
+      }
+    }
+
+    document.getElementById("registerButton").addEventListener("click", handleRegister);
+    document.getElementById("loginButton").addEventListener("click", handleLogin);
+    document.getElementById("logoutButton").addEventListener("click", handleLogout);
+    document.getElementById("checkoutButton").addEventListener("click", handleCheckout);
+    els.saveProfileButton.addEventListener("click", saveProfile);
+    els.googleVerifyButton.addEventListener("click", () => {
+      setStatus(els.authStatus, "如果之後要重新開啟 Google 驗證，我們可以再把這個入口接回正式 OAuth。", "warn");
+    });
+    els.sendPhoneCodeButton.addEventListener("click", saveProfile);
+    els.confirmPhoneCodeButton.addEventListener("click", () => {
+      setStatus(els.authStatus, "客服提醒已切換成網站站內對話，你可以直接在每筆訂單底下傳訊息。", "success");
+      jumpTo("#orders");
+    });
+    document.getElementById("clearCartButton").addEventListener("click", () => {
+      publicState.cart = [];
+      saveCart();
+      renderCart();
+    });
+    els.paymentMethodSelect.addEventListener("change", syncPaymentInstruction);
+    els.googleRegisterButton.addEventListener("click", startGoogleLogin);
+    els.productSearchInput.addEventListener("input", (event) => {
+      publicState.searchKeyword = event.target.value || "";
+      renderProducts();
+    });
+    els.productSortSelect?.addEventListener("change", (event) => {
+      publicState.sortMode = event.target.value || "featured";
+      renderProducts();
+    });
+    els.orderChatSendButton?.addEventListener("click", sendOrderChatMessage);
+
+    (async () => {
+      loadCart();
+      renderHeader();
+      renderCart();
+      try {
+        await loadPublic();
+        await restoreSession();
+      } catch (error) {
+        setStatus(els.authStatus, `商城載入失敗：${error.message || "未知錯誤"}`, "error");
+      }
+    })();
+  </script>
+</body>
+</html>

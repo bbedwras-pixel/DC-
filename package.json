@@ -1,0 +1,21 @@
+{
+  "name": "discord-control-center",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w apps/server\" \"npm run dev:web\"",
+    "open": "npm run dev",
+    "lan": "npm run build && npm run start",
+    "dev:server": "npm run dev -w apps/server",
+    "dev:web": "npm run dev -w apps/web",
+    "build": "npm run build -w packages/shared && npm run build -w apps/server && npm run build -w apps/web",
+    "start": "npm run start -w apps/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

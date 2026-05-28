@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>快速繳費｜歐付寶</title>
+    <style>
+      :root {
+        --bg: #f6f8fc;
+        --panel: rgba(255, 255, 255, 0.92);
+        --line: #e7ecf4;
+        --text: #18202f;
+        --muted: #6b7280;
+        --brand: #ff7a18;
+        --brand-strong: #ff5a00;
+        --brand-soft: #fff2e8;
+        --shadow: 0 20px 60px rgba(24, 32, 47, 0.12);
+        --radius: 28px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(255, 122, 24, 0.18), transparent 28%),
+          radial-gradient(circle at top right, rgba(22, 198, 255, 0.14), transparent 32%),
+          linear-gradient(180deg, #fcfdff 0%, #f3f6fb 100%);
+        min-height: 100vh;
+      }
+
+      .shell {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(320px, 420px);
+        gap: 24px;
+        align-items: stretch;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: var(--shadow);
+        border-radius: var(--radius);
+        backdrop-filter: blur(18px);
+      }
+
+      .hero-copy,
+      .hero-form {
+        padding: 32px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--brand-strong);
+        font-size: 12px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(34px, 4vw, 52px);
+        line-height: 1.08;
+      }
+
+      .hero-copy p {
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.8;
+      }
+
+      .hero-notes {
+        display: grid;
+        gap: 14px;
+        margin-top: 24px;
+      }
+
+      .note {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid var(--line);
+      }
+
+      .note strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .note span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+      }
+
+      .pill {
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        color: var(--brand-strong);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .hero-form h2 {
+        margin: 0 0 6px;
+        font-size: 28px;
+      }
+
+      .hero-form > p {
+        margin: 0 0 24px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      label {
+        display: grid;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 14px 16px;
+        font: inherit;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.92);
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: rgba(255, 122, 24, 0.6);
+        box-shadow: 0 0 0 4px rgba(255, 122, 24, 0.12);
+      }
+
+      textarea {
+        min-height: 112px;
+        resize: vertical;
+      }
+
+      .span-two {
+        grid-column: 1 / -1;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .primary {
+        min-width: 180px;
+        padding: 14px 22px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+        color: #fff;
+        font-weight: 800;
+        box-shadow: 0 16px 28px rgba(255, 90, 0, 0.22);
+      }
+
+      .secondary {
+        min-width: 160px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        background: #fff;
+        color: var(--text);
+        border: 1px solid var(--line);
+        font-weight: 700;
+      }
+
+      .status {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #fff;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        line-height: 1.7;
+        white-space: pre-wrap;
+      }
+
+      .status.is-error {
+        border-color: rgba(220, 38, 38, 0.2);
+        background: #fff4f4;
+        color: #b42318;
+      }
+
+      .status.is-success {
+        border-color: rgba(16, 185, 129, 0.24);
+        background: #effcf6;
+        color: #0f7b50;
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        margin-top: 24px;
+      }
+
+      .detail-card {
+        padding: 24px;
+      }
+
+      .detail-card h3 {
+        margin: 8px 0 10px;
+        font-size: 20px;
+      }
+
+      .detail-card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      .detail-icon {
+        width: 54px;
+        height: 54px;
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        background: var(--brand-soft);
+        font-size: 24px;
+      }
+
+      .footer-note {
+        margin-top: 26px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .result-panel {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+        background: #fff;
+        display: none;
+      }
+
+      .result-panel.is-visible {
+        display: block;
+      }
+
+      .result-panel h3 {
+        margin: 0 0 14px;
+        font-size: 22px;
+      }
+
+      .result-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .result-item {
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid var(--line);
+      }
+
+      .result-item span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      .result-item strong {
+        display: block;
+        font-size: 22px;
+        word-break: break-word;
+      }
+
+      .result-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .details-grid,
+        .grid.two {
+          grid-template-columns: 1fr;
+        }
+
+        .shell {
+          padding: 20px 14px 48px;
+        }
+
+        .hero-copy,
+        .hero-form,
+        .detail-card {
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <article class="card hero-copy">
+          <p class="eyebrow">Quick O'Pay Link</p>
+          <h1>快速開啟歐付寶繳費頁</h1>
+          <p>這是一個獨立的快速繳費網站。填好商品名稱、金額和付款說明後，系統就會直接幫你跳到歐付寶超商代碼付款頁，不會碰到你原本商城和後台流程。</p>
+
+          <div class="pill-row">
+            <span class="pill">獨立頁面</span>
+            <span class="pill">可直接分享</span>
+            <span class="pill">快速開單</span>
+            <span class="pill">支援超商代碼</span>
+          </div>
+
+          <div class="hero-notes">
+            <div class="note">
+              <div class="detail-icon">1</div>
+              <div>
+                <strong>填寫繳費資訊</strong>
+                <span>輸入商品名稱、金額、付款說明，必要時也可以留下付款人名稱。</span>
+              </div>
+            </div>
+            <div class="note">
+              <div class="detail-icon">2</div>
+              <div>
+                <strong>直接跳轉歐付寶</strong>
+                <span>網站會自動建立付款表單並送出，不需要手動複製任何欄位。</span>
+              </div>
+            </div>
+            <div class="note">
+              <div class="detail-icon">3</div>
+              <div>
+                <strong>可發給別人使用</strong>
+                <span>之後只要把這個頁面網址發出去，對方就能直接進來付款。</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <form class="card hero-form" id="quickOpayForm">
+          <p class="eyebrow">Create Checkout</p>
+          <h2>建立快速繳費</h2>
+          <p>送出後會直接跳轉到歐付寶。這頁預設走超商代碼付款。</p>
+
+          <div class="grid two">
+            <label>
+              <span>商品名稱</span>
+              <input id="itemName" value="商城快速繳費" required />
+            </label>
+            <label>
+              <span>付款金額</span>
+              <input id="amount" type="number" min="1" value="100" required />
+            </label>
+            <label>
+              <span>付款人名稱</span>
+              <input id="buyerName" placeholder="可不填，會帶進訂單描述" />
+            </label>
+            <label>
+              <span>超商類型</span>
+              <select id="subPayment">
+                <option value="CVS">超商代碼（自動）</option>
+                <option value="IBON">7-ELEVEN ibon</option>
+                <option value="FAMILY">全家 FamiPort</option>
+                <option value="OKMART">OK 超商</option>
+                <option value="HILIFE">萊爾富 Life-ET</option>
+              </select>
+            </label>
+            <label class="span-two">
+              <span>付款說明</span>
+              <textarea id="tradeDesc" required>商城快速繳費</textarea>
+            </label>
+          </div>
+
+          <div class="cta-row">
+            <button class="primary" type="submit">前往歐付寶付款</button>
+            <button class="secondary" type="button" id="copyShareLink">複製分享連結</button>
+          </div>
+
+          <div class="status" id="statusBox">準備好了。填完資料後按「前往歐付寶付款」。</div>
+          <section class="result-panel" id="resultPanel">
+            <h3>超商代碼已建立</h3>
+            <div class="result-grid">
+              <div class="result-item">
+                <span>付款代碼</span>
+                <strong id="paymentCodeValue">-</strong>
+              </div>
+              <div class="result-item">
+                <span>繳費期限</span>
+                <strong id="expireAtValue">-</strong>
+              </div>
+              <div class="result-item">
+                <span>商品名稱</span>
+                <strong id="resultItemName">-</strong>
+              </div>
+              <div class="result-item">
+                <span>付款金額</span>
+                <strong id="resultAmount">-</strong>
+              </div>
+            </div>
+            <div class="result-actions">
+              <button class="secondary" type="button" id="copyCodeButton">複製付款代碼</button>
+            </div>
+          </section>
+        </form>
+      </section>
+
+      <section class="details-grid">
+        <article class="card detail-card">
+          <div class="detail-icon">⚡</div>
+          <h3>獨立又乾淨</h3>
+          <p>這頁和你現在的商城前台、後台分開，不會去改原本的購物流程或訂單系統。</p>
+        </article>
+        <article class="card detail-card">
+          <div class="detail-icon">🏪</div>
+          <h3>專門給超商代碼</h3>
+          <p>目前這頁是專門做歐付寶超商代碼付款，適合快速發給客人自己開繳費頁。</p>
+        </article>
+        <article class="card detail-card">
+          <div class="detail-icon">🔗</div>
+          <h3>可先帶入內容</h3>
+          <p>你可以先填好商品和金額，再複製分享連結給別人，對方打開時就會自動帶入。</p>
+        </article>
+      </section>
+
+      <p class="footer-note">建議實際分享時使用你的正式網域網址，例如 https://你的網域/quick-opay</p>
+    </main>
+
+    <script>
+      const form = document.getElementById("quickOpayForm");
+      const statusBox = document.getElementById("statusBox");
+      const itemNameInput = document.getElementById("itemName");
+      const amountInput = document.getElementById("amount");
+      const buyerNameInput = document.getElementById("buyerName");
+      const tradeDescInput = document.getElementById("tradeDesc");
+      const subPaymentSelect = document.getElementById("subPayment");
+      const copyShareButton = document.getElementById("copyShareLink");
+      const resultPanel = document.getElementById("resultPanel");
+      const paymentCodeValue = document.getElementById("paymentCodeValue");
+      const expireAtValue = document.getElementById("expireAtValue");
+      const resultItemName = document.getElementById("resultItemName");
+      const resultAmount = document.getElementById("resultAmount");
+      const copyCodeButton = document.getElementById("copyCodeButton");
+      let currentQuickOrderId = "";
+      let pollingTimer = null;
+
+      function setStatus(message, type) {
+        statusBox.textContent = message;
+        statusBox.className = "status";
+        if (type) statusBox.classList.add(`is-${type}`);
+      }
+
+      function showResult(order) {
+        resultPanel.classList.add("is-visible");
+        paymentCodeValue.textContent = order.opayPaymentCode || "-";
+        expireAtValue.textContent = order.opayExpireAt || "-";
+        resultItemName.textContent = order.itemName || "-";
+        resultAmount.textContent = `NT$${Number(order.amount || 0).toLocaleString("zh-TW")}`;
+      }
+
+      function stopPolling() {
+        if (pollingTimer) {
+          clearInterval(pollingTimer);
+          pollingTimer = null;
+        }
+      }
+
+      async function fetchQuickOrder(orderId) {
+        const response = await fetch(`/api/quick-opay/orders/${orderId}`);
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || "讀取付款代碼失敗");
+        }
+        return data;
+      }
+
+      async function startPolling(orderId) {
+        currentQuickOrderId = orderId;
+        stopPolling();
+        pollingTimer = setInterval(async () => {
+          try {
+            const order = await fetchQuickOrder(orderId);
+            if (order.status === "payment_code_ready" || order.status === "paid") {
+              stopPolling();
+              showResult(order);
+              setStatus(
+                order.status === "paid"
+                  ? "付款已完成，網站已收到歐付寶回傳。"
+                  : "付款代碼已建立，請直接使用下方代碼繳費。",
+                "success"
+              );
+            }
+          } catch (error) {
+            stopPolling();
+            setStatus(error instanceof Error ? error.message : "讀取付款代碼失敗", "error");
+          }
+        }, 2000);
+      }
+
+      function currentPayload() {
+        return {
+          itemName: itemNameInput.value.trim(),
+          amount: Number(amountInput.value || 0),
+          buyerName: buyerNameInput.value.trim(),
+          tradeDesc: tradeDescInput.value.trim(),
+          subPayment: subPaymentSelect.value
+        };
+      }
+
+      function fillFromQuery() {
+        const params = new URLSearchParams(location.search);
+        if (params.get("item")) itemNameInput.value = params.get("item");
+        if (params.get("amount")) amountInput.value = params.get("amount");
+        if (params.get("buyer")) buyerNameInput.value = params.get("buyer");
+        if (params.get("desc")) tradeDescInput.value = params.get("desc");
+        if (params.get("sub")) subPaymentSelect.value = params.get("sub");
+      }
+
+      function buildShareUrl() {
+        const payload = currentPayload();
+        const url = new URL(location.href);
+        url.searchParams.set("item", payload.itemName || "商城快速繳費");
+        url.searchParams.set("amount", String(payload.amount || 1));
+        if (payload.buyerName) {
+          url.searchParams.set("buyer", payload.buyerName);
+        } else {
+          url.searchParams.delete("buyer");
+        }
+        url.searchParams.set("desc", payload.tradeDesc || "商城快速繳費");
+        url.searchParams.set("sub", payload.subPayment || "CVS");
+        return url.toString();
+      }
+
+      copyShareButton.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(buildShareUrl());
+          setStatus("已複製分享連結。你現在可以把這個網址直接發給別人。", "success");
+        } catch (error) {
+          setStatus("複製失敗，請手動複製網址列。", "error");
+        }
+      });
+
+      copyCodeButton.addEventListener("click", async () => {
+        if (!paymentCodeValue.textContent || paymentCodeValue.textContent === "-") return;
+        try {
+          await navigator.clipboard.writeText(paymentCodeValue.textContent);
+          setStatus("已複製超商付款代碼。", "success");
+        } catch (error) {
+          setStatus("複製付款代碼失敗，請手動複製。", "error");
+        }
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = currentPayload();
+
+        if (!payload.itemName || !payload.amount || !payload.tradeDesc) {
+          setStatus("請完整填入商品名稱、金額和付款說明。", "error");
+          return;
+        }
+
+        try {
+          stopPolling();
+          resultPanel.classList.remove("is-visible");
+          setStatus("正在建立付款訂單，請稍候...");
+          const response = await fetch("/api/quick-opay/checkout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || "建立付款頁失敗");
+          }
+
+          const popupName = `quick-opay-${data.orderId}`;
+          const popupWindow = window.open("", popupName, "width=520,height=760");
+          const submitForm = document.createElement("form");
+          submitForm.method = "POST";
+          submitForm.action = data.action;
+          submitForm.style.display = "none";
+          submitForm.target = popupName;
+
+          Object.entries(data.fields || {}).forEach(([key, value]) => {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = String(value ?? "");
+            submitForm.appendChild(input);
+          });
+
+          document.body.appendChild(submitForm);
+          setStatus("付款視窗已開啟，正在等待歐付寶回傳超商代碼...", "success");
+          submitForm.submit();
+          if (popupWindow) popupWindow.focus();
+          resultItemName.textContent = payload.itemName;
+          resultAmount.textContent = `NT$${Number(payload.amount || 0).toLocaleString("zh-TW")}`;
+          startPolling(data.orderId);
+        } catch (error) {
+          setStatus(error instanceof Error ? error.message : "建立付款頁失敗", "error");
+        }
+      });
+
+      fillFromQuery();
+    </script>
+  </body>
+</html>
