@@ -1977,5 +1977,24 @@ export const createApiServer = () => {
     });
   }
 
+  app.use((error: unknown, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (res.headersSent) {
+      return next(error);
+    }
+
+    const fallbackMessage = error instanceof Error && error.message.trim()
+      ? error.message.trim()
+      : "Internal Server Error";
+
+    if (req.path.startsWith("/api")) {
+      const statusCode = typeof (error as { status?: unknown })?.status === "number"
+        ? Number((error as { status?: number }).status)
+        : 500;
+      return res.status(statusCode).json({ message: fallbackMessage });
+    }
+
+    return res.status(500).type("text/plain").send(fallbackMessage);
+  });
+
   return app;
 };
