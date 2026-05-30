@@ -3756,17 +3756,26 @@
       });
 
       if (!response.ok) {
-        let text = "";
+        const raw = await response.text();
+        let text = raw;
         try {
-          const json = await response.json();
+          const json = JSON.parse(raw);
           text = json.message || JSON.stringify(json);
         } catch {
-          text = await response.text();
+          text = raw;
         }
         throw new Error(text || "發生未知錯誤");
       }
 
-      return response.json();
+      const okRaw = await response.text();
+      if (!okRaw) {
+        return null;
+      }
+      try {
+        return JSON.parse(okRaw);
+      } catch {
+        return okRaw;
+      }
     }
 
     function setStatus(target, message, tone = "") {
