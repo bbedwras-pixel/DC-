@@ -88,7 +88,7 @@ type GoogleOauthState = {
   createdAt: string;
 };
 const googleOauthStates = new Map<string, GoogleOauthState>();
-const dashboardDiscordOauthStates = new Map<string, { createdAt: string }>();
+const DISCORD_OAUTH_STATE_COOKIE = "dc_discord_oauth_state";
 
 const toSafeAccount = (account: DashboardAccount): SafeDashboardAccount => ({
   id: account.id,
@@ -245,8 +245,28 @@ const isVerificationCodeExpired = (expiresAt?: string) => !expiresAt || new Date
 const getRequestedDashboardGuildId = (req: express.Request) =>
   req.header("x-dashboard-guild-id")?.trim() || (typeof req.query.guildId === "string" ? req.query.guildId.trim() : "");
 
+const parseCookies = (header?: string) =>
+  Object.fromEntries(
+    (header ?? "")
+      .split(";")
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map((item) => {
+        const index = item.indexOf("=");
+        if (index < 0) return [item, ""];
+        return [item.slice(0, index).trim(), decodeURIComponent(item.slice(index + 1).trim())];
+      })
+  ) as Record<string, string>;
+
+const buildDiscordOauthStateCookie = (state: string, secure: boolean) =>
+  `${DISCORD_OAUTH_STATE_COOKIE}=${encodeURIComponent(state)}; Path=/api/auth/discord/callback; HttpOnly; SameSite=Lax${secure ? "; Secure" : ""}; Max-Age=600`;
+
+const clearDiscordOauthStateCookie = (secure: boolean) =>
+  `${DISCORD_OAUTH_STATE_COOKIE}=; Path=/api/auth/discord/callback; HttpOnly; SameSite=Lax${secure ? "; Secure" : ""}; Max-Age=0`;
+
 export const createApiServer = () => {
   const app = express();
+  app.set("trust proxy", 1);
   const apiCors = cors({
     origin(origin, callback) {
       if (!origin || env.webOrigins.includes(origin) || env.isPrivateHttpOrigin(origin)) {
@@ -979,7 +999,8 @@ export const createApiServer = () => {
       return res.status(400).json({ message: `Discord OAuth 尚未設定：${missing.join("、")}` });
     }
     const state = crypto.randomBytes(16).toString("hex");
-    dashboardDiscordOauthStates.set(state, { createdAt: new Date().toISOString() });
+    const secureCookie = Boolean(((_req.headers["x-forwarded-proto"] as string | undefined) ?? "").split(",")[0]?.trim() === "https" || _req.secure);
+    res.setHeader("Set-Cookie", buildDiscordOauthStateCookie(state, secureCookie));
     const scope = encodeURIComponent("identify guilds");
     const redirectUri = encodeURIComponent(env.discordOauthRedirectUrl);
     const url =
@@ -991,10 +1012,14 @@ export const createApiServer = () => {
   app.get("/api/auth/discord/callback", async (req, res) => {
     const code = typeof req.query.code === "string" ? req.query.code : "";
     const state = typeof req.query.state === "string" ? req.query.state : "";
-    if (!code || !state || !dashboardDiscordOauthStates.has(state)) {
+    const cookies = parseCookies(req.headers.cookie);
+    const cookieState = cookies[DISCORD_OAUTH_STATE_COOKIE] ?? "";
+    const secureCookie = Boolean(((req.headers["x-forwarded-proto"] as string | undefined) ?? "").split(",")[0]?.trim() === "https" || req.secure);
+    if (!code || !state || !cookieState || cookieState !== state) {
+      res.setHeader("Set-Cookie", clearDiscordOauthStateCookie(secureCookie));
       return res.status(400).send("Discord 登入驗證失敗。");
     }
-    dashboardDiscordOauthStates.delete(state);
+    res.setHeader("Set-Cookie", clearDiscordOauthStateCookie(secureCookie));
 
     try {
       const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
