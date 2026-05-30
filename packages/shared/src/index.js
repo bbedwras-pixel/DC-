@@ -115,8 +115,39 @@ export const defaultGuildSettings = (guildId, adminKey) => ({
             { id: "question", label: "問題詢問", emoji: "❓" }
         ],
         products: [
-            { id: "rb-80", name: "80 Robux", category: "Robux", priceLabel: "20 NT", enabled: true },
-            { id: "rb-500", name: "500 Robux", category: "Robux", priceLabel: "100 NT", enabled: true }
+            {
+                id: "web-hosting-900",
+                name: "網站託管",
+                category: "服務方案",
+                priceLabel: "900 元",
+                description: "提供網站托管、基本維護與上線支援，適合需要穩定代管的顧客。",
+                imageUrl: "",
+                stockStatus: "in_stock",
+                stockNote: "現貨供應中",
+                enabled: true
+            },
+            {
+                id: "bot-work-500",
+                name: "機器人代做",
+                category: "服務方案",
+                priceLabel: "500 元",
+                description: "客製化 Discord 機器人代做與流程串接，依需求協助規劃。",
+                imageUrl: "",
+                stockStatus: "in_stock",
+                stockNote: "現貨供應中",
+                enabled: true
+            },
+            {
+                id: "site-work-700",
+                name: "網站代做",
+                category: "服務方案",
+                priceLabel: "700 元",
+                description: "網站版型與基礎前台製作服務，適合快速建立品牌頁面。",
+                imageUrl: "",
+                stockStatus: "in_stock",
+                stockNote: "現貨供應中",
+                enabled: true
+            }
         ],
         blacklist: []
     },

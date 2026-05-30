@@ -4,6 +4,7 @@ import {
   BalanceRecord,
   CustomerAccount,
   DashboardAccount,
+  ProductItem,
   ServerStructureBackup,
   DashboardStats,
   GiveawayRecord,
@@ -130,6 +131,53 @@ const normalizeDashboardAccount = (account: DashboardAccount, baseGuildId: strin
     : (account.role === "developer" || account.role === "owner" ? ["*"] : [baseGuildId])
 });
 
+const normalizeProductItem = (product: ProductItem): ProductItem => ({
+  ...product,
+  description: product.description ?? "",
+  imageUrl: product.imageUrl ?? "",
+  stockStatus: product.stockStatus ?? (product.enabled ? "in_stock" : "out_of_stock"),
+  stockNote: product.stockNote ?? "",
+  featured: Boolean(product.featured),
+  enabled: product.enabled !== false
+});
+
+const desiredServiceProductNames = ["網站託管", "機器人代做", "網站代做"];
+const legacySampleHints = ["Robux", "RBX", "Roblox", "代儲", "代充", "遊戲幣"];
+
+const createDefaultServiceProducts = (): ProductItem[] =>
+  defaultGuildSettings("sync", "sync").ticket.products.map((product) => normalizeProductItem(product));
+
+const hasDesiredServiceCatalog = (products: ProductItem[]) =>
+  desiredServiceProductNames.every((name) => products.some((product) => product.name.trim() === name));
+
+const looksLikeLegacySampleProducts = (products: ProductItem[]) =>
+  products.length > 0 &&
+  products.every((product) =>
+    legacySampleHints.some((hint) =>
+      [product.id, product.name, product.category, product.priceLabel, product.description ?? "", product.stockNote ?? ""]
+        .join(" ")
+        .includes(hint)
+    )
+  );
+
+const resolveProductCatalog = (incomingProducts: ProductItem[] | undefined, fallbackProducts: ProductItem[]) => {
+  const products = incomingProducts ?? fallbackProducts;
+
+  if (!products.length) {
+    return fallbackProducts.map(normalizeProductItem);
+  }
+
+  if (hasDesiredServiceCatalog(products)) {
+    return products.map(normalizeProductItem);
+  }
+
+  if (looksLikeLegacySampleProducts(products)) {
+    return createDefaultServiceProducts();
+  }
+
+  return products.map(normalizeProductItem);
+};
+
 const mergeSettings = (base: GuildSettings, incoming: Partial<GuildSettings>): GuildSettings => {
   const incomingAccounts = incoming.accounts ?? [];
   const mergedAccounts = [
@@ -159,7 +207,7 @@ const mergeSettings = (base: GuildSettings, incoming: Partial<GuildSettings>): G
       ...base.ticket,
       ...incoming.ticket,
       categories: incoming.ticket?.categories ?? base.ticket.categories,
-      products: incoming.ticket?.products ?? base.ticket.products,
+      products: resolveProductCatalog(incoming.ticket?.products, base.ticket.products),
       blacklist: incoming.ticket?.blacklist ?? base.ticket.blacklist
     },
     autoReplies: incoming.autoReplies ?? base.autoReplies,

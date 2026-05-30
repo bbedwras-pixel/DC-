@@ -4032,6 +4032,14 @@ textarea {
   gap: 4px;
 }
 
+.product-admin-stock-note {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
 .store-order-preview {
   width: 68px;
   height: 68px;

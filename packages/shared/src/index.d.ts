@@ -23,6 +23,7 @@ export type TicketCategory = {
     label: string;
     emoji: string;
 };
+export type ProductStockStatus = "in_stock" | "out_of_stock" | "restocking";
 export type ProductItem = {
     id: string;
     name: string;
@@ -30,6 +31,8 @@ export type ProductItem = {
     priceLabel: string;
     description?: string;
     imageUrl?: string;
+    stockStatus: ProductStockStatus;
+    stockNote?: string;
     featured?: boolean;
     enabled: boolean;
 };

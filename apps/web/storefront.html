@@ -258,6 +258,12 @@
       color: #6b7280;
     }
 
+    .compact-product-note {
+      color: #f97316;
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
     .compact-product-action {
       min-width: 88px !important;
       min-height: 38px !important;
@@ -3841,6 +3847,16 @@
       return rawProducts().find((item) => item.id === productId) || currentProducts().find((item) => item.id === productId);
     }
 
+    function productStockLabel(value) {
+      if (value === "out_of_stock") return "缺貨中";
+      if (value === "restocking") return "補貨中";
+      return "現貨供應";
+    }
+
+    function canAddToCart(product) {
+      return (product?.enabled !== false) && product?.stockStatus !== "out_of_stock";
+    }
+
     function renderProductFilters() {
       const categories = ["全部", ...new Set(currentProducts().map((item) => (item.category || "未分類").trim() || "未分類"))];
       els.productCategoryBar.innerHTML = categories.map((category) => `
@@ -4022,6 +4038,7 @@
             <div class="product-tag-stack">
               <span class="badge">${escapeHtml(product.category || "商城商品")}</span>
               ${product.featured ? '<span class="badge">精選商品</span>' : ""}
+              <span class="badge">${escapeHtml(productStockLabel(product.stockStatus))}</span>
             </div>
             <div class="sale-ribbon">${product.featured ? "限時精選" : "新品推薦"}</div>
           </div>
@@ -4038,19 +4055,21 @@
             <div class="product-tag-stack">
               <div class="product-category-chip">🛒 ${escapeHtml(product.category || "商城商品")}</div>
               ${product.featured ? '<div class="product-category-chip">🔥 熱門</div>' : '<div class="product-category-chip">✨ 新上架</div>'}
+              <div class="product-category-chip">${escapeHtml(productStockLabel(product.stockStatus))}</div>
             </div>
           </div>
           <div>
             <div class="price">${escapeHtml(product.priceLabel)} NT</div>
             <div class="product-sales-line">
               <span>${product.featured ? "月熱度高" : "新上架商品"}</span>
-              <span>${product.featured ? "商城精選推薦" : "近期補貨完成"}</span>
+              <span>${product.stockStatus === "restocking" ? "補貨中" : product.stockStatus === "out_of_stock" ? "暫時缺貨" : "近期補貨完成"}</span>
             </div>
             <p>${escapeHtml(product.description || "這個服務方案已由後台上架，顧客可以直接加入購物車並走會員下單流程。")}</p>
+            ${product.stockNote ? `<p class="product-stock-note">${escapeHtml(product.stockNote)}</p>` : ""}
           </div>
           <div class="product-card-footer">
             <p class="product-stock-note">${product.featured ? "支援購物車下單、站內客服、後台追單" : "可直接加入購物車，網站內完成訂單追蹤"}</p>
-            <button class="button" type="button" data-add-cart="${escapeHtml(product.id)}">加入購物車</button>
+            <button class="button" type="button" data-add-cart="${escapeHtml(product.id)}" ${canAddToCart(product) ? "" : "disabled"}>${product.stockStatus === "out_of_stock" ? "缺貨中" : "加入購物車"}</button>
           </div>
         </article>
       `).join("");
@@ -4072,12 +4091,13 @@
         const cover = splitGallery(product.imageUrl)[0];
         return `
           <div class="compact-product-card">
-            <div class="compact-product-cover">${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(product.name)}" />` : escapeHtml((product.name || "P").slice(0, 1))}</div>
-            <div class="compact-product-meta">
+          <div class="compact-product-cover">${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(product.name)}" />` : escapeHtml((product.name || "P").slice(0, 1))}</div>
+          <div class="compact-product-meta">
               <strong>${escapeHtml(product.name)}</strong>
-              <small>${escapeHtml(product.category || "服務方案")} ｜ ${escapeHtml(product.priceLabel)} NT ｜ ${product.featured ? "熱銷中" : "新上架"}</small>
+              <small>${escapeHtml(product.category || "服務方案")} ｜ ${escapeHtml(product.priceLabel)} NT ｜ ${productStockLabel(product.stockStatus)}</small>
+              ${product.stockNote ? `<span class="compact-product-note">${escapeHtml(product.stockNote)}</span>` : ""}
             </div>
-            <button class="button compact-product-action" type="button" data-add-cart="${escapeHtml(product.id)}">加入</button>
+            <button class="button compact-product-action" type="button" data-add-cart="${escapeHtml(product.id)}" ${canAddToCart(product) ? "" : "disabled"}>${product.stockStatus === "out_of_stock" ? "缺貨" : "加入"}</button>
           </div>
         `;
       }).join("");
@@ -4434,6 +4454,11 @@
     }
 
     function addToCart(productId) {
+      const product = productById(productId);
+      if (product && !canAddToCart(product)) {
+        setStatus(els.authStatus, `${product.name || "這個商品"}目前${product.stockStatus === "restocking" ? "補貨中" : "缺貨中"}，請先從後台切回上架或補貨狀態。`, "warn");
+        return;
+      }
       const current = publicState.cart.find((item) => item.productId === productId);
       if (current) {
         current.quantity += 1;

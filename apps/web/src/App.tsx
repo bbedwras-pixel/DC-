@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Component, useEffect, useState } from "react";
 import { AutoReplyRule, BalanceRecord, BlacklistEntry, DashboardAccount, DashboardStats, GiveawayRecord, GuildSettings, LinkedGuildConfig, PartnershipApplication, PartnershipServer, ProductItem, ReviewRecord, StoreOrderRecord, TicketRecord } from "@dc/shared";
 import {
   adjustBalanceFromDashboard,
@@ -114,6 +114,8 @@ const newProduct = (): ProductItem => ({
   priceLabel: "",
   description: "",
   imageUrl: "",
+  stockStatus: "in_stock",
+  stockNote: "",
   featured: false,
   enabled: true
 });
@@ -195,6 +197,18 @@ const splitImageGallery = (value?: string) =>
     .split(/[\n,]/)
     .map((item) => item.trim())
     .filter(Boolean);
+
+const productStockLabel = (value?: string) => {
+  if (value === "out_of_stock") return "缺貨中";
+  if (value === "restocking") return "補貨中";
+  return "現貨供應";
+};
+
+const productStockTone = (value?: string) => {
+  if (value === "out_of_stock") return "tone-warn";
+  if (value === "restocking") return "tone-info";
+  return "tone-ok";
+};
 
 const ticketTone = (status: TicketRecord["status"]) => {
   if (status === "completed") return "ok";
@@ -295,7 +309,79 @@ const MetricBar = ({
   </div>
 );
 
-export default function App() {
+type DashboardErrorBoundaryState = {
+  hasError: boolean;
+  message: string;
+};
+
+class DashboardErrorBoundary extends Component<{ children: React.ReactNode }, DashboardErrorBoundaryState> {
+  state: DashboardErrorBoundaryState = {
+    hasError: false,
+    message: ""
+  };
+
+  static getDerivedStateFromError(error: Error) {
+    return {
+      hasError: true,
+      message: error.message
+    };
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error("Dashboard crashed:", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <main
+          className="dashboard login-dashboard"
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "32px 20px",
+            background: "linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)",
+            color: "#0f172a"
+          }}
+        >
+          <section className="login-shell" style={{ width: "100%", maxWidth: "980px", position: "relative", zIndex: 2, display: "grid", placeItems: "center" }}>
+            <div
+              className="card login-card"
+              style={{
+                width: "min(100%, 760px)",
+                display: "grid",
+                gap: "18px",
+                padding: "32px",
+                borderRadius: "28px",
+                background: "rgba(255,255,255,0.96)",
+                border: "1px solid rgba(148, 163, 184, 0.2)",
+                boxShadow: "0 30px 80px rgba(15, 23, 42, 0.12)"
+              }}
+            >
+              <p className="eyebrow">Dashboard Error</p>
+              <h1>後台讀取失敗</h1>
+              <p>前端在載入控制台時遇到例外，已先切到這個保底頁面，避免整頁白畫面。</p>
+              <div className="login-note compact-note">
+                <strong>錯誤訊息：</strong>
+                <span>{this.state.message || "未知錯誤"}</span>
+              </div>
+              <div className="login-note">
+                <strong>下一步：</strong>
+                <span>我們先把這個錯誤邊界留著，接著我會幫你把商品與登入畫面整理成可正常顯示的版本。</span>
+              </div>
+            </div>
+          </section>
+        </main>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function DashboardApp() {
   const [settings, setSettings] = useState<GuildSettings | null>(null);
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [saving, setSaving] = useState(false);
@@ -1154,6 +1240,8 @@ export default function App() {
   const showSection = (id: string) => visibleSectionIds.has(id as never) && currentSection?.id === id;
   const currentGuildLabel = botGuilds.find((guild) => guild.id === selectedGuildId)?.label || settings.brand.serverName;
   const productCategoryCount = new Set(settings.ticket.products.map((item) => item.category.trim()).filter(Boolean)).size;
+  const outOfStockProducts = settings.ticket.products.filter((item) => item.stockStatus === "out_of_stock").length;
+  const restockingProducts = settings.ticket.products.filter((item) => item.stockStatus === "restocking").length;
   const filteredProducts = settings.ticket.products.filter((product) => {
     const keyword = productSearch.trim().toLowerCase();
     const matchesKeyword = !keyword || [product.name, product.category, product.priceLabel, product.description ?? ""].some((value) => value.toLowerCase().includes(keyword));
@@ -2292,6 +2380,16 @@ export default function App() {
                 <small>首頁會優先展示的商品</small>
               </div>
               <div className="inventory-kpi">
+                <span>缺貨中</span>
+                <strong>{outOfStockProducts}</strong>
+                <small>目前顧客暫時無法下單的商品</small>
+              </div>
+              <div className="inventory-kpi">
+                <span>補貨中</span>
+                <strong>{restockingProducts}</strong>
+                <small>等待重新上架或補貨的商品</small>
+              </div>
+              <div className="inventory-kpi">
                 <span>分類數量</span>
                 <strong>{productCategoryCount}</strong>
                 <small>目前建立的商品分類</small>
@@ -2327,6 +2425,7 @@ export default function App() {
                   <span>分類</span>
                   <span>價格</span>
                   <span>狀態</span>
+                  <span>庫存</span>
                   <span>精選</span>
                 </div>
                 {filteredProducts.map((product) => (
@@ -2335,6 +2434,7 @@ export default function App() {
                     <span>{product.category || "未分類"}</span>
                     <span>{product.priceLabel || "未設定"}</span>
                     <span>{product.enabled ? "上架中" : "未上架"}</span>
+                    <span>{productStockLabel(product.stockStatus)}</span>
                     <span>{product.featured ? "精選" : "一般"}</span>
                   </div>
                 ))}
@@ -2356,7 +2456,9 @@ export default function App() {
                     ) : <div className="product-admin-fallback">{(product.name || "P").slice(0, 1).toUpperCase()}</div>}
                     <div className="product-admin-summary">
                       <strong>{product.name || "未命名商品"}</strong>
-                      <small>{product.category || "未分類"} ｜ {product.priceLabel || "未設定價格"}</small>
+                      <small>{product.category || "未分類"} ｜ {product.priceLabel || "未設定價格"} ｜ {productStockLabel(product.stockStatus)}</small>
+                      <span className={`pill ${productStockTone(product.stockStatus)}`}>{productStockLabel(product.stockStatus)}</span>
+                      {product.stockNote?.trim() ? <p className="product-admin-stock-note">{product.stockNote}</p> : null}
                     </div>
                   </div>
                   <div className="field-grid three">
@@ -2364,6 +2466,15 @@ export default function App() {
                     <label><span>分類</span><input value={product.category} onChange={(e) => updateProduct(index, { ...product, category: e.target.value })} /></label>
                     <label><span>價格文字</span><input value={product.priceLabel} onChange={(e) => updateProduct(index, { ...product, priceLabel: e.target.value })} /></label>
                     <label><span>商品圖片網址</span><input value={product.imageUrl ?? ""} onChange={(e) => updateProduct(index, { ...product, imageUrl: e.target.value })} placeholder="可填多張，用逗號或換行分隔" /></label>
+                    <label>
+                      <span>庫存狀態</span>
+                      <select value={product.stockStatus} onChange={(e) => updateProduct(index, { ...product, stockStatus: e.target.value as ProductItem["stockStatus"] })}>
+                        <option value="in_stock">現貨供應</option>
+                        <option value="restocking">補貨中</option>
+                        <option value="out_of_stock">缺貨中</option>
+                      </select>
+                    </label>
+                    <label><span>庫存說明</span><input value={product.stockNote ?? ""} onChange={(e) => updateProduct(index, { ...product, stockNote: e.target.value })} placeholder="例如：到貨時間、補貨提醒、暫停販售說明" /></label>
                     <label className="span-two"><span>商品描述</span><textarea value={product.description ?? ""} onChange={(e) => updateProduct(index, { ...product, description: e.target.value })} placeholder="這個商品會顯示在商城 HTML 前台上。" /></label>
                   </div>
                   <div className="inline-actions">
@@ -2758,5 +2869,13 @@ export default function App() {
         </aside>
       </section>
     </main>
+  );
+}
+
+export default function App() {
+  return (
+    <DashboardErrorBoundary>
+      <DashboardApp />
+    </DashboardErrorBoundary>
   );
 }

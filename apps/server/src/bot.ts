@@ -98,6 +98,11 @@ const ticketCommand = new SlashCommandBuilder()
   .setDescription("發送工單面板")
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
+const selfServiceTicketCommand = new SlashCommandBuilder()
+  .setName("發送自助開單面板")
+  .setDescription("發送自助開單面板")
+  .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
+
 const counterCommand = new SlashCommandBuilder()
   .setName("建立票單統計")
   .setDescription("建立或更新完成票單數頻道")
@@ -260,6 +265,7 @@ const payuniDirectCodeCommand = new SlashCommandBuilder()
 const commands = [
   reviewCommand.toJSON(),
   ticketCommand.toJSON(),
+  selfServiceTicketCommand.toJSON(),
   counterCommand.toJSON(),
   giveawayCommand.toJSON(),
   rerollCommand.toJSON(),
@@ -338,7 +344,7 @@ const parsePriceValue = (value?: string) => {
   return Number.isFinite(numeric) ? numeric : 0;
 };
 
-const buildSelfServiceReason = (ticket: TicketRecord) => {
+const buildOrderReason = (ticket: TicketRecord) => {
   const lines = [
     `商品名稱：${ticket.productName || "尚未選擇"}`,
     `數量：${ticket.quantity ?? 1}`,
@@ -356,138 +362,6 @@ const buildSelfServiceReason = (ticket: TicketRecord) => {
     lines.push(`繳費期限：${ticket.opayExpireAt}`);
   }
   return lines.join("\n");
-};
-
-const buildSelfServiceEmbed = (ticket: TicketRecord, settings: GuildSettings) => {
-  const selectedProduct = settings.ticket.products.find((item) => item.id === ticket.productId);
-  const currentPayment = ticket.paymentMethod || "尚未選擇";
-  const currentCvs = cvsSubPaymentChoices.find((item) => item.value === ticket.cvsSubPayment)?.label || "尚未選擇";
-  const checkoutReady = Boolean(ticket.productId && ticket.quantity && ticket.paymentMethod);
-
-  return new EmbedBuilder()
-    .setColor("#f59e0b")
-    .setTitle("🛍️ 自助開單流程")
-    .setDescription("先選商品、數量與付款方式，再按下方按鈕建立付款資訊。")
-    .addFields(
-      { name: "商品", value: ticket.productName || "尚未選擇", inline: true },
-      { name: "數量", value: String(ticket.quantity ?? 1), inline: true },
-      { name: "金額", value: formatCurrency(ticket.totalAmount ?? 0), inline: true },
-      { name: "付款方式", value: currentPayment, inline: true },
-      ...(ticket.paymentMethod?.includes("超商代碼") ? [{ name: "超商代碼類型", value: currentCvs, inline: true }] : []),
-      {
-        name: "目前狀態",
-        value: ticket.status === "paid"
-          ? "系統已自動辨識為已付款。"
-          : ticket.quickOpayOrderId
-            ? "付款流程已建立，等待顧客完成付款。"
-            : checkoutReady
-              ? "已可建立付款資訊。"
-              : "請先完成上方選擇。",
-        inline: false
-      }
-    )
-    .setThumbnail(selectedProduct?.imageUrl || null)
-    .setFooter({ text: "超商代碼付款完成後，系統會自動把代碼與付款結果同步回工單。" })
-    .setTimestamp();
-};
-
-const buildSelfServiceRows = (ticket: TicketRecord, settings: GuildSettings) => {
-  const productOptions = settings.ticket.products
-    .filter((item) => item.enabled)
-    .slice(0, 25)
-    .map((product) => ({
-      label: product.name.slice(0, 100),
-      value: product.id,
-      description: `${product.category || "未分類"}｜${product.priceLabel}`.slice(0, 100),
-      emoji: product.featured ? "🔥" : "🛒",
-      default: product.id === ticket.productId
-    }));
-  const safeProductOptions = productOptions.length
-    ? productOptions
-    : [{
-        label: "目前沒有可購買商品",
-        value: "__empty__",
-        description: "請先到後台上架商品",
-        emoji: "📦"
-      }];
-
-  const quantityOptions = Array.from({ length: 10 }, (_, index) => {
-    const quantity = index + 1;
-    return {
-      label: `${quantity} 件`,
-      value: String(quantity),
-      description: quantity === 1 ? "單件購買" : `購買 ${quantity} 件`,
-      default: quantity === (ticket.quantity ?? 1)
-    };
-  });
-
-  const paymentOptions = selfServicePaymentMethods.map((method) => ({
-    label: method,
-    value: method,
-    description: method.includes("超商代碼")
-      ? (method.includes("歐付寶") ? "透過歐付寶建立超商付款代碼" : "直接建立超商付款代碼")
-      : `使用 ${method} 完成匯款`,
-    default: method === ticket.paymentMethod
-  }));
-
-  const rows: (
-    | ActionRowBuilder<StringSelectMenuBuilder>
-    | ActionRowBuilder<ButtonBuilder>
-  )[] = [
-    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId(`ticket:productselect:${ticket.id}`)
-        .setPlaceholder("選擇商品")
-        .addOptions(safeProductOptions)
-    ),
-    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId(`ticket:quantity:${ticket.id}`)
-        .setPlaceholder("選擇數量")
-        .addOptions(quantityOptions)
-    ),
-    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId(`ticket:paymentselect:${ticket.id}`)
-        .setPlaceholder("選擇付款方式")
-        .addOptions(paymentOptions)
-    )
-  ];
-
-  if (ticket.paymentMethod?.includes("超商代碼")) {
-    rows.push(
-      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId(`ticket:cvsmode:${ticket.id}`)
-          .setPlaceholder("選擇超商代碼類型")
-          .addOptions(
-            cvsSubPaymentChoices.map((item) => ({
-              label: item.label,
-              value: item.value,
-              default: item.value === ticket.cvsSubPayment
-            }))
-          )
-      )
-    );
-  }
-
-  rows.push(
-    new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId(`ticket:selfpay:${ticket.id}`)
-        .setLabel(ticket.paymentMethod?.includes("超商代碼") ? "建立超商付款資訊" : "送出付款方式")
-        .setEmoji(ticket.paymentMethod?.includes("超商代碼") ? "🏪" : "💸")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(!(ticket.productId && ticket.quantity && ticket.paymentMethod)),
-      new ButtonBuilder()
-        .setCustomId(`ticket:selfrefresh:${ticket.id}`)
-        .setLabel("重新整理面板")
-        .setEmoji("🔄")
-        .setStyle(ButtonStyle.Secondary)
-    )
-  );
-
-  return rows;
 };
 
 const resolveManualPaymentInstruction = (settings: GuildSettings, paymentMethod: string) => {
@@ -677,6 +551,33 @@ const buildTicketPanel = () => {
   return { embed, button };
 };
 
+const buildSelfServiceTicketPanel = () => {
+  const settings = loadSettings();
+  const embed = new EmbedBuilder()
+    .setColor(settings.brand.primaryColor as `#${string}`)
+    .setTitle(`🛒 自助開單面板`)
+    .setDescription(`${settings.ticket.panelDescription}\n\n這個入口會讓顧客自己選擇對應的購買類型與資料，適合直接下單與自動化處理。`)
+    .addFields(
+      settings.ticket.categories.map((category) => ({
+        name: `${category.emoji} ${category.label}`,
+        value: `建立 ${category.label} 自助單，快速進入對應流程`,
+        inline: true
+      }))
+    )
+    .setFooter({ text: `${settings.brand.serverName}｜自助開單建立後會同步記錄處理狀態` })
+    .setTimestamp();
+
+  const button = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId("ticket:selfcreate")
+      .setLabel("開始自助開單")
+      .setEmoji("🛒")
+      .setStyle(ButtonStyle.Primary)
+  );
+
+  return { embed, button };
+};
+
 const buildTicketEmbed = (ticket: TicketRecord, openerLabel?: string) => {
   const settings = loadSettings();
   const tone = ticketStatusToneMap[ticket.status];
@@ -697,12 +598,51 @@ const buildTicketEmbed = (ticket: TicketRecord, openerLabel?: string) => {
       { name: "訂單狀態", value: `${tone.emoji} ${statusLabelMap[ticket.status]}`, inline: true },
       { name: "工單編號", value: ticket.id, inline: true },
       { name: "工單內容", value: ticket.reason, inline: false },
-      ...(detailLines.length ? [{ name: "自助開單摘要", value: detailLines.join("\n"), inline: false }] : []),
+      ...(detailLines.length ? [{ name: "訂單摘要", value: detailLines.join("\n"), inline: false }] : []),
       { name: "認領狀態", value: ticket.claimedBy ? `已由 ${ticket.claimedBy} 認領` : "尚未認領", inline: false },
       { name: "付款狀態", value: ticket.status === "paid" ? "管理員已確認付款" : "尚未確認付款", inline: false }
     )
     .setFooter({ text: "使用下方按鈕即可直接切換狀態或關閉工單" })
     .setTimestamp();
+};
+
+const openTicketCategoryPicker = async (
+  interaction: ButtonInteraction,
+  prompt: string,
+  customId: "ticket:category" | "selfticket:category"
+) => {
+  const settings = resolveGuildSettings(interaction.guildId);
+  if (!settings) {
+    await interaction.reply({ content: "這個群組目前還沒有加入多群組設定。", flags: MessageFlags.Ephemeral });
+    return false;
+  }
+  if (settings.ticket.blacklist.some((entry) => entry.userId === interaction.user.id)) {
+    await interaction.reply({ content: "你目前無法建立工單，請聯絡管理員。", flags: MessageFlags.Ephemeral });
+    return false;
+  }
+  if (countOpenTicketsForUser(interaction.user.id, interaction.guildId ?? undefined) >= settings.ticket.maxOpenTicketsPerUser) {
+    await interaction.reply({ content: `你目前已有進行中的工單，最多同時開啟 ${settings.ticket.maxOpenTicketsPerUser} 張。`, flags: MessageFlags.Ephemeral });
+    return false;
+  }
+
+  const menu = new StringSelectMenuBuilder()
+    .setCustomId(customId)
+    .setPlaceholder("選擇工單類型")
+    .addOptions(
+      settings.ticket.categories.map((category) => ({
+        label: category.label,
+        value: category.id,
+        emoji: category.emoji,
+        description: `建立 ${category.label}`
+      }))
+    );
+
+  await interaction.reply({
+    content: prompt,
+    components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu)],
+    flags: MessageFlags.Ephemeral
+  });
+  return true;
 };
 
 const buildTicketActionRows = (ticketId: string) => [
@@ -1140,7 +1080,7 @@ export const handleQuickOpayOrderUpdate = async (order: QuickOpayOrderRecord) =>
       cvsSubPayment: order.subPayment,
       opayPaymentCode: order.opayPaymentCode,
       opayExpireAt: order.opayExpireAt,
-      reason: buildSelfServiceReason({
+      reason: buildOrderReason({
         ...current,
         quickOpayOrderId: order.id,
         paymentMethod: "超商代碼繳費（歐付寶）",
@@ -1160,7 +1100,7 @@ export const handleQuickOpayOrderUpdate = async (order: QuickOpayOrderRecord) =>
       cvsSubPayment: order.subPayment,
       opayPaymentCode: order.opayPaymentCode ?? current.opayPaymentCode,
       opayExpireAt: order.opayExpireAt ?? current.opayExpireAt,
-      reason: buildSelfServiceReason({
+      reason: buildOrderReason({
         ...current,
         status: "paid",
         quickOpayOrderId: order.id,
@@ -1227,7 +1167,7 @@ export const handleDirectCodeOrderUpdate = async (order: DirectCodeOrderRecord) 
       cvsSubPayment: order.subPayment,
       opayPaymentCode: order.paymentCode,
       opayExpireAt: order.expireAt,
-      reason: buildSelfServiceReason({
+      reason: buildOrderReason({
         ...current,
         status: "pending",
         paymentMethod: "超商代碼直出",
@@ -1246,7 +1186,7 @@ export const handleDirectCodeOrderUpdate = async (order: DirectCodeOrderRecord) 
       cvsSubPayment: order.subPayment,
       opayPaymentCode: order.paymentCode ?? current.opayPaymentCode,
       opayExpireAt: order.expireAt ?? current.opayExpireAt,
-      reason: buildSelfServiceReason({
+      reason: buildOrderReason({
         ...current,
         status: "paid",
         paymentMethod: "超商代碼直出",
@@ -1285,7 +1225,7 @@ export const handleDirectCodeOrderUpdate = async (order: DirectCodeOrderRecord) 
             { name: "付款代碼", value: order.paymentCode || "未取得", inline: false },
             { name: "繳費期限", value: order.expireAt || "未取得", inline: false }
           )
-          .setFooter({ text: "這筆代碼由自助開單直出模組建立，顧客可直接前往超商付款。" })
+          .setFooter({ text: "這筆代碼由直出代碼模組建立，顧客可直接前往超商付款。" })
       ]
     }).catch(() => null);
   }
@@ -1577,7 +1517,8 @@ export const createDiscordClient = () => {
       }
       if (interaction.isModalSubmit()) {
         if (interaction.customId.startsWith("reviewModal:")) await submitReview(interaction);
-        if (interaction.customId.startsWith("ticketModal:")) await submitTicket(interaction);
+        if (interaction.customId.startsWith("ticketModal:") || interaction.customId.startsWith("selfticketModal:"))
+          await submitTicket(interaction);
         if (interaction.customId.startsWith("balanceModal:")) await submitBalanceManageModal(interaction);
       }
     } catch (error) {
@@ -1674,6 +1615,15 @@ const handleSlashCommand = async (interaction: ChatInputCommandInteraction) => {
       await interaction.channel.send({ embeds: [embed], components: [button] });
     }
     await interaction.reply({ content: "工單面板已發送。", flags: MessageFlags.Ephemeral });
+    return;
+  }
+
+  if (interaction.commandName === "發送自助開單面板") {
+    const { embed, button } = buildSelfServiceTicketPanel();
+    if (interaction.channel?.isSendable()) {
+      await interaction.channel.send({ embeds: [embed], components: [button] });
+    }
+    await interaction.reply({ content: "自助開單面板已發送。", flags: MessageFlags.Ephemeral });
     return;
   }
 
@@ -2216,242 +2166,13 @@ const handleButtonInteraction = async (interaction: ButtonInteraction) => {
     return;
   }
 
-  if (interaction.customId.startsWith("ticket:selfrefresh:")) {
-    const ticket = findTicketByChannelId(interaction.channelId);
-    if (!ticket) {
-      await interaction.reply({ content: "找不到這張工單。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-    const settings = resolveGuildSettings(ticket.guildId);
-    if (!settings) {
-      await interaction.reply({ content: "這個群組目前還沒有加入多群組設定。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-    await interaction.update({
-      embeds: [buildSelfServiceEmbed(ticket, settings)],
-      components: buildSelfServiceRows(ticket, settings)
-    });
-    return;
-  }
-
-  if (interaction.customId.startsWith("ticket:selfpay:")) {
-    const ticket = findTicketByChannelId(interaction.channelId);
-    if (!ticket) {
-      await interaction.reply({ content: "找不到這張工單。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-    const settings = resolveGuildSettings(ticket.guildId);
-    if (!settings) {
-      await interaction.reply({ content: "這個群組目前還沒有加入多群組設定。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-    if (!ticket.productId || !ticket.productName || !ticket.quantity || !ticket.paymentMethod) {
-      await interaction.reply({ content: "請先完成商品、數量與付款方式的選擇。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-
-    if (ticket.paymentMethod === "超商代碼繳費（歐付寶）") {
-      const subPayment = ticket.cvsSubPayment || "CVS";
-      const existingOrder = ticket.quickOpayOrderId ? findQuickOpayOrder(ticket.quickOpayOrderId) : null;
-      const orderId = existingOrder?.id || createId("quick-opay");
-      const merchantTradeNo = existingOrder?.merchantTradeNo || `QT${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(0, 20);
-      const now = new Date().toISOString();
-      const quickOrder: QuickOpayOrderRecord = {
-        id: orderId,
-        merchantTradeNo,
-        itemName: ticket.productName,
-        tradeDesc: `${settings.brand.serverName} 自助開單`,
-        buyerName:
-          (interaction.member && "displayName" in interaction.member ? interaction.member.displayName : undefined) ||
-          interaction.user.globalName ||
-          interaction.user.username,
-        amount: Math.max(1, ticket.totalAmount ?? 0),
-        subPayment,
-        guildId: ticket.guildId,
-        channelId: ticket.channelId,
-        ticketId: ticket.id,
-        userId: ticket.userId,
-        username: ticket.username,
-        status: existingOrder?.status === "paid" ? "paid" : "pending_checkout",
-        createdAt: existingOrder?.createdAt || now,
-        updatedAt: now
-      };
-      saveQuickOpayOrder(quickOrder);
-      updateTicket(ticket.id, (current) => ({
-        ...current,
-        quickOpayOrderId: orderId,
-        paymentMethod: "超商代碼繳費（歐付寶）",
-        cvsSubPayment: subPayment,
-        reason: buildSelfServiceReason({
-          ...current,
-          quickOpayOrderId: orderId,
-          paymentMethod: "超商代碼繳費（歐付寶）",
-          cvsSubPayment: subPayment
-        })
-      }));
-
-      const payUrl = `${getPublicAppBaseUrl()}/quick-opay/pay/${orderId}`;
-      const refreshed = findTicketByChannelId(interaction.channelId);
-      if (refreshed) {
-        await syncTicketPanelEmbeds(interaction.client, refreshed);
-      }
-      await interaction.reply({
-        content: "已替你建立歐付寶超商付款流程，請點下方按鈕前往建立代碼。建立完成後，付款代碼會自動回傳到這張工單。",
-        components: [
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder().setLabel("前往歐付寶建立代碼").setStyle(ButtonStyle.Link).setURL(payUrl)
-          )
-        ],
-        flags: MessageFlags.Ephemeral
-      });
-      return;
-    }
-
-    if (ticket.paymentMethod === "超商代碼直出") {
-      const subPayment = ticket.cvsSubPayment || "CVS";
-      if (!isDirectCodeConfigured()) {
-        await interaction.reply({
-          content: "直出超商代碼模組目前還沒有設定完成。請先在 .env 填入 ECPAY_DIRECT_* 參數；歐付寶原本流程仍可照常使用。",
-          flags: MessageFlags.Ephemeral
-        });
-        return;
-      }
-      const existingOrder = ticket.quickOpayOrderId ? findDirectCodeOrder(ticket.quickOpayOrderId) : null;
-      const orderId = existingOrder?.id || createId("direct-code");
-      const merchantTradeNo = existingOrder?.merchantTradeNo || `DC${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(0, 20);
-      const now = new Date().toISOString();
-      const directOrder: DirectCodeOrderRecord = {
-        id: orderId,
-        provider: "ecpay",
-        merchantTradeNo,
-        itemName: ticket.productName,
-        tradeDesc: `${settings.brand.serverName} 自助開單`,
-        buyerName:
-          (interaction.member && "displayName" in interaction.member ? interaction.member.displayName : undefined) ||
-          interaction.user.globalName ||
-          interaction.user.username,
-        amount: Math.max(1, ticket.totalAmount ?? 0),
-        subPayment,
-        guildId: ticket.guildId,
-        channelId: ticket.channelId,
-        ticketId: ticket.id,
-        userId: ticket.userId,
-        username: ticket.username,
-        status: existingOrder?.status === "paid" ? "paid" : "pending",
-        createdAt: existingOrder?.createdAt || now,
-        updatedAt: now
-      };
-      saveDirectCodeOrder(directOrder);
-      updateTicket(ticket.id, (current) => ({
-        ...current,
-        quickOpayOrderId: orderId,
-        paymentMethod: "超商代碼直出",
-        cvsSubPayment: subPayment,
-        reason: buildSelfServiceReason({
-          ...current,
-          quickOpayOrderId: orderId,
-          paymentMethod: "超商代碼直出",
-          cvsSubPayment: subPayment
-        })
-      }));
-      try {
-        const result = await createDirectCode({
-          amount: Math.max(1, ticket.totalAmount ?? 0),
-          itemName: ticket.productName,
-          tradeDesc: `${settings.brand.serverName} 自助開單`,
-          buyerName: directOrder.buyerName,
-          merchantTradeNo,
-          subPayment
-        });
-        const saved = saveDirectCodeOrder({
-          ...directOrder,
-          status: "code_ready",
-          providerTradeNo: result.providerTradeNo,
-          paymentCode: result.paymentCode,
-          expireAt: result.expireAt,
-          rawPayload: JSON.stringify(result.raw),
-          updatedAt: new Date().toISOString()
-        });
-        await handleDirectCodeOrderUpdate(saved);
-        await interaction.reply({
-          content: "已直接建立超商付款代碼，代碼內容已同步發回這張工單。",
-          flags: MessageFlags.Ephemeral
-        });
-      } catch (error) {
-        console.error("Create direct code failed:", error);
-        saveDirectCodeOrder({
-          ...directOrder,
-          status: "failed",
-          updatedAt: new Date().toISOString()
-        });
-        await interaction.reply({
-          content: `直出超商代碼建立失敗：${error instanceof Error ? error.message : "未知錯誤"}`,
-          flags: MessageFlags.Ephemeral
-        });
-      }
-      return;
-    }
-
-    const payment = resolveManualPaymentInstruction(settings, ticket.paymentMethod);
-    updateTicket(ticket.id, (current) => ({
-      ...current,
-      reason: buildSelfServiceReason(current)
-    }));
-    const refreshed = findTicketByChannelId(interaction.channelId);
-    if (refreshed) {
-      await syncTicketPanelEmbeds(interaction.client, refreshed);
-    }
-    await interaction.reply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor("#22c55e")
-          .setTitle(`💸 ${payment.label} 付款資訊`)
-          .setDescription(payment.instructions)
-          .addFields(
-            { name: "商品名稱", value: ticket.productName, inline: true },
-            { name: "數量", value: String(ticket.quantity), inline: true },
-            { name: "付款金額", value: formatCurrency(ticket.totalAmount ?? 0), inline: true },
-            { name: "收款資訊", value: payment.accountInfo, inline: false }
-          )
-          .setFooter({ text: "完成付款後，請等待客服核對或在工單中告知已付款。" })
-      ],
-      flags: MessageFlags.Ephemeral
-    });
-    return;
-  }
-
   if (interaction.customId === "ticket:create") {
-    const settings = resolveGuildSettings(interaction.guildId);
-    if (!settings) {
-      await interaction.reply({ content: "這個群組目前還沒有加入多群組設定。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-    if (settings.ticket.blacklist.some((entry) => entry.userId === interaction.user.id)) {
-      await interaction.reply({ content: "你目前無法建立工單，請聯絡管理員。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-    if (countOpenTicketsForUser(interaction.user.id, interaction.guildId ?? undefined) >= settings.ticket.maxOpenTicketsPerUser) {
-      await interaction.reply({ content: `你目前已有進行中的工單，最多同時開啟 ${settings.ticket.maxOpenTicketsPerUser} 張。`, flags: MessageFlags.Ephemeral });
-      return;
-    }
+    await openTicketCategoryPicker(interaction, "請先選擇要建立的工單類型。", "ticket:category");
+    return;
+  }
 
-    const menu = new StringSelectMenuBuilder()
-      .setCustomId("ticket:category")
-      .setPlaceholder("選擇工單類型")
-      .addOptions(
-        settings.ticket.categories.map((category) => ({
-          label: category.label,
-          value: category.id,
-          emoji: category.emoji,
-          description: `建立 ${category.label}`
-        }))
-      );
-
-    await interaction.reply({
-      content: "請先選擇要建立的工單類型。",
-      components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu)],
-      flags: MessageFlags.Ephemeral
-    });
+  if (interaction.customId === "ticket:selfcreate") {
+    await openTicketCategoryPicker(interaction, "請先選擇要建立的自助開單類型。", "selfticket:category");
     return;
   }
 
@@ -2540,23 +2261,28 @@ const handleButtonInteraction = async (interaction: ButtonInteraction) => {
 };
 
 const handleSelectMenu = async (interaction: StringSelectMenuInteraction) => {
-  if (interaction.customId === "ticket:category") {
+  if (interaction.customId === "ticket:category" || interaction.customId === "selfticket:category") {
     const categoryId = interaction.values[0];
     const settings = resolveGuildSettings(interaction.guildId);
     if (!settings) {
       await interaction.reply({ content: "這個群組目前還沒有加入多群組設定。", flags: MessageFlags.Ephemeral });
       return;
     }
-    if (categoryId === "purchase" || categoryId === "cart") {
-      await createSelfServiceTicket(interaction, settings, categoryId);
-      return;
-    }
-    const modal = new ModalBuilder().setCustomId(`ticketModal:${categoryId}`).setTitle("建立工單");
+    const isSelfService = interaction.customId === "selfticket:category";
+    const modal = new ModalBuilder()
+      .setCustomId(`${isSelfService ? "selfticketModal" : "ticketModal"}:${categoryId}`)
+      .setTitle(isSelfService ? "建立自助開單" : "建立工單");
     modal.addComponents(
       new ActionRowBuilder<TextInputBuilder>().addComponents(
         new TextInputBuilder()
           .setCustomId("ticketReason")
-          .setLabel(categoryId === "giveaway" ? "請輸入領獎資訊" : "請描述你的問題")
+          .setLabel(
+            isSelfService
+              ? "請輸入你的訂購或付款需求"
+              : categoryId === "giveaway"
+                ? "請輸入領獎資訊"
+                : "請描述你的問題"
+          )
           .setStyle(TextInputStyle.Paragraph)
           .setRequired(true)
       )
@@ -2574,82 +2300,7 @@ const handleSelectMenu = async (interaction: StringSelectMenuInteraction) => {
     return;
   }
 
-  if (interaction.customId.startsWith("ticket:productselect:")) {
-    if (interaction.values[0] === "__empty__") {
-      await interaction.reply({ content: "目前還沒有可購買的商品，請先到後台上架商品。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-    const product = settings.ticket.products.find((item) => item.id === interaction.values[0] && item.enabled);
-    if (!product) {
-      await interaction.reply({ content: "找不到這個商品，請重新選擇。", flags: MessageFlags.Ephemeral });
-      return;
-    }
-    updateTicket(ticket.id, (current) => {
-      const quantity = current.quantity ?? 1;
-      return {
-        ...current,
-        productId: product.id,
-        productName: product.name,
-        quantity,
-        totalAmount: parsePriceValue(product.priceLabel) * quantity,
-        reason: buildSelfServiceReason({
-          ...current,
-          productId: product.id,
-          productName: product.name,
-          quantity,
-          totalAmount: parsePriceValue(product.priceLabel) * quantity
-        })
-      };
-    });
-  } else if (interaction.customId.startsWith("ticket:quantity:")) {
-    const quantity = Math.max(1, Number(interaction.values[0]) || 1);
-    updateTicket(ticket.id, (current) => {
-      const product = settings.ticket.products.find((item) => item.id === current.productId);
-      const totalAmount = (product ? parsePriceValue(product.priceLabel) : 0) * quantity;
-      return {
-        ...current,
-        quantity,
-        totalAmount,
-        reason: buildSelfServiceReason({
-          ...current,
-          quantity,
-          totalAmount
-        })
-      };
-    });
-  } else if (interaction.customId.startsWith("ticket:paymentselect:")) {
-    const paymentMethod = interaction.values[0];
-    updateTicket(ticket.id, (current) => ({
-      ...current,
-      paymentMethod,
-      cvsSubPayment: paymentMethod.includes("超商代碼") ? current.cvsSubPayment : undefined,
-      reason: buildSelfServiceReason({
-        ...current,
-        paymentMethod,
-        cvsSubPayment: paymentMethod.includes("超商代碼") ? current.cvsSubPayment : undefined
-      })
-    }));
-  } else if (interaction.customId.startsWith("ticket:cvsmode:")) {
-    const cvsSubPayment = interaction.values[0] as TicketRecord["cvsSubPayment"];
-    updateTicket(ticket.id, (current) => ({
-      ...current,
-      cvsSubPayment,
-      reason: buildSelfServiceReason({
-        ...current,
-        cvsSubPayment
-      })
-    }));
-  } else {
-    return;
-  }
-
-  const refreshed = findTicketByChannelId(interaction.channelId);
-  if (!refreshed) return;
-  await syncTicketPanelEmbeds(interaction.client, refreshed);
-  await interaction.update({
-    embeds: [buildSelfServiceEmbed(refreshed, settings)],
-    components: buildSelfServiceRows(refreshed, settings)
-  });
+  return;
 };
 
 const submitReview = async (interaction: Interaction) => {
@@ -2758,80 +2409,6 @@ const createTicketTextChannel = async (
           }]
         : [])
     ]
-  });
-};
-
-const createSelfServiceTicket = async (
-  interaction: StringSelectMenuInteraction,
-  settings: GuildSettings,
-  categoryId: string
-) => {
-  const selected = settings.ticket.categories.find((item) => item.id === categoryId) ?? settings.ticket.categories[0];
-  const channelPrefix = channelPrefixByCategory[categoryId] ?? "工單";
-
-  let channel: TextChannel;
-  try {
-    channel = await createTicketTextChannel(interaction.guild!, settings, channelPrefix, interaction.user.username, interaction.user.id);
-  } catch (error) {
-    const message =
-      error instanceof Error && error.message === "INVALID_TICKET_CATEGORY"
-        ? "未付款工單分類區 ID 無效，請回網站檢查。"
-        : error instanceof Error && error.message === "TICKET_CATEGORY_NOT_CATEGORY"
-          ? "你填的未付款工單分類區 ID 不是分類頻道，請改成真正的分類區 ID。"
-          : error instanceof Error && error.message === "INVALID_SUPPORT_ROLE"
-            ? "客服身分組 ID 無效，請回網站檢查。"
-            : "建立工單頻道失敗，請檢查機器人權限。";
-    await interaction.reply({ content: message, flags: MessageFlags.Ephemeral });
-    return;
-  }
-
-  const ticket: TicketRecord = {
-    id: createId("ticket"),
-    guildId: interaction.guildId ?? settings.guildId,
-    channelId: channel.id,
-    userId: interaction.user.id,
-    username: interaction.user.tag,
-    categoryId: selected.id,
-    categoryLabel: selected.label,
-    reason: "商品名稱：尚未選擇\n數量：1\n付款方式：尚未選擇\n付款金額：NT$0",
-    quantity: 1,
-    status: "pending",
-    createdAt: new Date().toISOString()
-  };
-  addTicket(ticket);
-
-  const openerLabel = `<@${interaction.user.id}>`;
-  const publicPanel = await channel.send({
-    content: `${interaction.user} 你的自助購買工單已建立，先完成下方商品與付款設定。`,
-    embeds: [buildTicketEmbed(ticket, openerLabel)]
-  });
-
-  const servicePanel = await channel.send({
-    embeds: [buildSelfServiceEmbed(ticket, settings)],
-    components: buildSelfServiceRows(ticket, settings)
-  });
-
-  let adminPanelMessageId: string | undefined;
-  if (settings.ticket.logChannelId) {
-    const logChannel = await interaction.guild?.channels.fetch(settings.ticket.logChannelId).catch(() => null);
-    if (logChannel?.isSendable()) {
-      const adminPanel = await logChannel.send({
-        content: `🧾 新自助開單：${interaction.user}｜<#${channel.id}>`,
-        embeds: [buildTicketEmbed(ticket, openerLabel)]
-      });
-      adminPanelMessageId = adminPanel.id;
-    }
-  }
-
-  updateTicket(ticket.id, (current) => ({
-    ...current,
-    publicPanelMessageId: publicPanel.id,
-    adminPanelMessageId
-  }));
-
-  await interaction.reply({
-    content: `已建立你的自助購買工單：<#${channel.id}>`,
-    flags: MessageFlags.Ephemeral
   });
 };
 
@@ -3157,7 +2734,8 @@ export const sendProductAnnouncement = async (client: Client, product: ProductIt
     .addFields(
       { name: "分類", value: product.category?.trim() || "未分類", inline: true },
       { name: "價格", value: product.priceLabel?.trim() || "未設定", inline: true },
-      { name: "狀態", value: product.featured ? "精選商品" : "一般商品", inline: true }
+      { name: "狀態", value: product.featured ? "精選商品" : "一般商品", inline: true },
+      { name: "庫存", value: product.stockStatus === "out_of_stock" ? "缺貨中" : product.stockStatus === "restocking" ? "補貨中" : "現貨供應", inline: true }
     )
     .setFooter({ text: `商品 ID：${product.id}` })
     .setTimestamp();

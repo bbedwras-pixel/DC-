@@ -1924,6 +1924,9 @@ export const createApiServer = () => {
   const webDistPath = webDistCandidates.find((candidate) => fs.existsSync(path.join(candidate, "index.html")));
 
   if (webDistPath) {
+    app.get(["/", "/dashboard", "/admin"], (_req, res) => {
+      res.sendFile(path.join(webDistPath, "index.html"));
+    });
     app.use(express.static(webDistPath));
     app.get(/^(?!\/api).*/, (_req, res) => {
       res.sendFile(path.join(webDistPath, "index.html"));
