@@ -247,16 +247,18 @@ const getRequestedDashboardGuildId = (req: express.Request) =>
 
 export const createApiServer = () => {
   const app = express();
-  app.use(
-    cors({
-      origin(origin, callback) {
-        if (!origin || env.webOrigins.includes(origin) || env.isPrivateHttpOrigin(origin)) {
-          return callback(null, true);
-        }
-        return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+  const apiCors = cors({
+    origin(origin, callback) {
+      if (!origin || env.webOrigins.includes(origin) || env.isPrivateHttpOrigin(origin)) {
+        return callback(null, true);
       }
-    })
-  );
+      return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+    }
+  });
+  app.use((req, res, next) => {
+    if (!req.path.startsWith("/api")) return next();
+    return apiCors(req, res, next);
+  });
   app.use(express.json({ limit: "2mb" }));
   app.use(express.urlencoded({ extended: true }));
 
