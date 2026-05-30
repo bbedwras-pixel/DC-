@@ -1142,68 +1142,73 @@ export const createApiServer = () => {
   });
 
   app.put("/api/settings", async (req, res) => {
-    const dashboardAccount = resolveDashboardAuth(req);
-    if (!dashboardAccount) {
-      return res.status(401).json({ message: "Unauthorized dashboard access" });
-    }
-    const current = loadSettings();
-    const incoming = req.body as Partial<GuildSettings>;
-
-    if (dashboardAccount.role !== "developer" && dashboardAccount.role !== "owner") {
-      incoming.accounts = current.accounts;
-      incoming.adminKey = current.adminKey;
-    }
-
-    const nextSettings: GuildSettings = {
-      ...current,
-      ...incoming,
-      linkedGuilds: Array.isArray(incoming.linkedGuilds) ? incoming.linkedGuilds : current.linkedGuilds,
-      accounts: Array.isArray(incoming.accounts) ? incoming.accounts : current.accounts,
-      storefront: {
-        ...current.storefront,
-        ...incoming.storefront,
-        paymentMethods: Array.isArray(incoming.storefront?.paymentMethods) ? incoming.storefront.paymentMethods : current.storefront.paymentMethods
-      },
-      brand: { ...current.brand, ...incoming.brand },
-      moderation: { ...current.moderation, ...incoming.moderation },
-      review: { ...current.review, ...incoming.review },
-      ticket: {
-        ...current.ticket,
-        ...incoming.ticket,
-        categories: incoming.ticket?.categories ?? current.ticket.categories,
-        products: incoming.ticket?.products ?? current.ticket.products,
-        blacklist: incoming.ticket?.blacklist ?? current.ticket.blacklist
-      },
-      autoReplies: Array.isArray(incoming.autoReplies) ? incoming.autoReplies : current.autoReplies,
-      faq: Array.isArray(incoming.faq) ? incoming.faq : current.faq
-    };
-
-    const currentProductsById = new Map(current.ticket.products.map((item) => [item.id, item]));
-    const productsToAnnounce = nextSettings.ticket.products.filter((item) => {
-      if (!item.enabled || !item.name.trim()) return false;
-      const previous = currentProductsById.get(item.id);
-      return !previous || !previous.enabled;
-    });
-
-    saveSettings(nextSettings);
-
-    if (productsToAnnounce.length > 0 && nextSettings.storefront.productAnnouncementChannelId) {
-      const client = getDiscordClient();
-      if (client?.isReady()) {
-        const { sendProductAnnouncement } = await import("./bot.js");
-        await Promise.all(productsToAnnounce.map((product: ProductItem) => sendProductAnnouncement(client, product).catch(() => false)));
+    try {
+      const dashboardAccount = resolveDashboardAuth(req);
+      if (!dashboardAccount) {
+        return res.status(401).json({ message: "Unauthorized dashboard access" });
       }
+      const current = loadSettings();
+      const incoming = req.body as Partial<GuildSettings>;
+
+      if (dashboardAccount.role !== "developer" && dashboardAccount.role !== "owner") {
+        incoming.accounts = current.accounts;
+        incoming.adminKey = current.adminKey;
+      }
+
+      const nextSettings: GuildSettings = {
+        ...current,
+        ...incoming,
+        linkedGuilds: Array.isArray(incoming.linkedGuilds) ? incoming.linkedGuilds : current.linkedGuilds,
+        accounts: Array.isArray(incoming.accounts) ? incoming.accounts : current.accounts,
+        storefront: {
+          ...current.storefront,
+          ...incoming.storefront,
+          paymentMethods: Array.isArray(incoming.storefront?.paymentMethods) ? incoming.storefront.paymentMethods : current.storefront.paymentMethods
+        },
+        brand: { ...current.brand, ...incoming.brand },
+        moderation: { ...current.moderation, ...incoming.moderation },
+        review: { ...current.review, ...incoming.review },
+        ticket: {
+          ...current.ticket,
+          ...incoming.ticket,
+          categories: incoming.ticket?.categories ?? current.ticket.categories,
+          products: incoming.ticket?.products ?? current.ticket.products,
+          blacklist: incoming.ticket?.blacklist ?? current.ticket.blacklist
+        },
+        autoReplies: Array.isArray(incoming.autoReplies) ? incoming.autoReplies : current.autoReplies,
+        faq: Array.isArray(incoming.faq) ? incoming.faq : current.faq
+      };
+
+      const currentProductsById = new Map(current.ticket.products.map((item) => [item.id, item]));
+      const productsToAnnounce = nextSettings.ticket.products.filter((item) => {
+        if (!item.enabled || !item.name.trim()) return false;
+        const previous = currentProductsById.get(item.id);
+        return !previous || !previous.enabled;
+      });
+
+      saveSettings(nextSettings);
+
+      if (productsToAnnounce.length > 0 && nextSettings.storefront.productAnnouncementChannelId) {
+        const client = getDiscordClient();
+        if (client?.isReady()) {
+          const { sendProductAnnouncement } = await import("./bot.js");
+          await Promise.all(productsToAnnounce.map((product: ProductItem) => sendProductAnnouncement(client, product).catch(() => false)));
+        }
+      }
+
+      const allowedGuildIds = dashboardAccount.allowedGuildIds.includes("*")
+        ? [nextSettings.guildId, ...nextSettings.linkedGuilds.map((item) => item.guildId).filter(Boolean)]
+        : dashboardAccount.allowedGuildIds;
+
+      return res.json({
+        ...nextSettings,
+        linkedGuilds: nextSettings.linkedGuilds.filter((item) => allowedGuildIds.includes(item.guildId)),
+        accounts: dashboardAccount.role === "developer" || dashboardAccount.role === "owner" ? nextSettings.accounts : nextSettings.accounts.filter((item) => item.id === dashboardAccount.id)
+      });
+    } catch (error) {
+      console.error("[api/settings] failed", error);
+      return res.status(500).json({ message: error instanceof Error ? error.message : "儲存設定失敗" });
     }
-
-    const allowedGuildIds = dashboardAccount.allowedGuildIds.includes("*")
-      ? [nextSettings.guildId, ...nextSettings.linkedGuilds.map((item) => item.guildId).filter(Boolean)]
-      : dashboardAccount.allowedGuildIds;
-
-    res.json({
-      ...nextSettings,
-      linkedGuilds: nextSettings.linkedGuilds.filter((item) => allowedGuildIds.includes(item.guildId)),
-      accounts: dashboardAccount.role === "developer" || dashboardAccount.role === "owner" ? nextSettings.accounts : nextSettings.accounts.filter((item) => item.id === dashboardAccount.id)
-    });
   });
 
   app.get("/api/bot/guilds", async (req, res) => {
