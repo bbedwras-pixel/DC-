@@ -1281,19 +1281,31 @@ export const createApiServer = () => {
   });
 
   app.post("/api/bot/guilds/:id/approval", (req, res) => {
-    const { approved } = req.body as { approved?: boolean };
-    const current = loadSettings();
-    if (req.params.id === current.guildId) {
-      return res.status(400).json({ message: "Primary guild is always enabled" });
+    try {
+      const dashboardAccount = resolveDashboardAuth(req);
+      if (!dashboardAccount) {
+        return res.status(401).json({ message: "Unauthorized dashboard access" });
+      }
+      const { approved } = req.body as { approved?: boolean };
+      const current = loadSettings();
+      if (req.params.id === current.guildId) {
+        return res.status(400).json({ message: "Primary guild is always enabled" });
+      }
+      if (!hasGuildAccess(dashboardAccount, req.params.id)) {
+        return res.status(403).json({ message: "You do not have access to this guild" });
+      }
+      const nextSettings = {
+        ...current,
+        linkedGuilds: current.linkedGuilds.map((item) =>
+          item.guildId === req.params.id ? { ...item, enabled: approved === true } : item
+        )
+      };
+      saveSettings(nextSettings);
+      return res.json({ ok: true, linkedGuilds: nextSettings.linkedGuilds });
+    } catch (error) {
+      console.error("[api/bot/guilds/:id/approval] failed", error);
+      return res.status(500).json({ message: error instanceof Error ? error.message : "批准群組失敗" });
     }
-    const nextSettings = {
-      ...current,
-      linkedGuilds: current.linkedGuilds.map((item) =>
-        item.guildId === req.params.id ? { ...item, enabled: approved === true } : item
-      )
-    };
-    saveSettings(nextSettings);
-    return res.json({ ok: true, linkedGuilds: nextSettings.linkedGuilds });
   });
 
   app.post("/api/bot/messages", async (req, res) => {
