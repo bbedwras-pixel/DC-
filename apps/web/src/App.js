@@ -395,7 +395,13 @@ function DashboardApp() {
                 return;
             const next = await saveSettings(settings);
             setSettings(next);
-            await reloadDashboard("儲存成功");
+            try {
+                await reloadDashboard("儲存成功");
+            }
+            catch (reloadError) {
+                console.warn("[dashboard] reload after save failed", reloadError);
+                setStatus("儲存成功，但部分資料同步失敗，請稍後再重新整理一次");
+            }
         }
         catch (error) {
             setStatus(`儲存失敗：${error instanceof Error ? error.message : "未知錯誤"}`);

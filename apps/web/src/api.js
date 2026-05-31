@@ -3,6 +3,25 @@ const apiBase = import.meta.env.VITE_API_BASE_URL?.trim() ||
 const readDashboardToken = () => (window.localStorage.getItem("dc_dashboard_token") ?? "").trim();
 const readLegacyAdminKey = () => (window.localStorage.getItem("dc_admin_key") ?? "").trim();
 const readSelectedGuildId = () => (window.localStorage.getItem("dc_dashboard_selected_guild") ?? "").trim();
+const normalizeApiErrorMessage = (raw) => {
+    const trimmed = raw.trim();
+    if (!trimmed) {
+        return "伺服器沒有回傳錯誤內容";
+    }
+    if (/^<!doctype html>/i.test(trimmed) || /^<html[\s>]/i.test(trimmed) || trimmed.includes("<pre>Internal Server Error</pre>")) {
+        return "伺服器發生錯誤，請稍後再試";
+    }
+    try {
+        const parsed = JSON.parse(trimmed);
+        if (typeof parsed.message === "string" && parsed.message.trim()) {
+            return parsed.message.trim();
+        }
+    }
+    catch {
+        // Ignore JSON parsing failures and fall back to the raw body.
+    }
+    return trimmed;
+};
 const request = async (path, options) => {
     const dashboardToken = readDashboardToken();
     const legacyAdminKey = readLegacyAdminKey();
@@ -18,14 +37,7 @@ const request = async (path, options) => {
     });
     if (!response.ok) {
         const raw = await response.text();
-        let message = raw;
-        try {
-            const parsed = JSON.parse(raw);
-            message = parsed.message || raw;
-        }
-        catch {
-            message = raw;
-        }
+        const message = normalizeApiErrorMessage(raw);
         throw new Error(message);
     }
     return response.json();
